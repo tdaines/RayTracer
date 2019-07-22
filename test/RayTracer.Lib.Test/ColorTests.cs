@@ -22,8 +22,6 @@ namespace RayTracer.Lib.Test
 
             var diff = left - right;
             Assert.Equal(new Color(0.2f, 0.5f, 0.5f), diff);
-
-            var x = System.Drawing.Color.Black;
         }
         
         [Fact]

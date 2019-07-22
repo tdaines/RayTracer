@@ -4,55 +4,73 @@ namespace RayTracer.Lib
 {
     public struct Point : IEquatable<Point>
     {
-        public Tuple Value { get; }
-        public float X => Value.X;
-        public float Y => Value.Y;
-        public float Z => Value.Z;
-        public float W => Value.W;
+        public readonly float X;
+        public readonly float Y;
+        public readonly float Z;
+        public readonly float W;
 
-        public Point(float x, float y, float z)
+        public Point(float x, float y, float z) : this(x, y, z, 1)
         {
-            Value = new Tuple(x, y, z, 1);
         }
 
-        public Point(Tuple tuple) : this(tuple.X, tuple.Y, tuple.Z)
+        private Point(float x, float y, float z, float w)
         {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
         }
         
         public static Vector operator -(Point left, Point right)
         {
-            var diff = left.Value - right.Value;
+            var x = left.X - right.X;
+            var y = left.Y - right.Y;
+            var z = left.Z - right.Z;
             
-            return new Vector(diff);
+            return new Vector(x, y, z);
         }
         
         public static Point operator -(Point left, Vector right)
         {
-            var diff = left.Value - right.Value;
+            var x = left.X - right.X;
+            var y = left.Y - right.Y;
+            var z = left.Z - right.Z;
+            var w = left.W - right.W;
             
-            return new Point(diff);
+            return new Point(x, y, z);
         }
 
         public static Point operator +(Point left, Vector right)
         {
-            var sum = left.Value + right.Value;
+            var x = left.X + right.X;
+            var y = left.Y + right.Y;
+            var z = left.Z + right.Z;
+            var w = left.W + right.W;
             
-            return new Point(sum);
+            return new Point(x, y, z, w);
         }
 
         public bool Equals(Point other)
         {
-            return Value.Equals(other.Value);
+            return X.ApproximatelyEquals(other.X) 
+                && Y.ApproximatelyEquals(other.Y)
+                && Z.ApproximatelyEquals(other.Z)
+                && W.ApproximatelyEquals(other.W);
         }
         
         public override bool Equals(object obj)
         {
-            return obj != null && Equals((Point) obj);
+            return (obj != null) 
+                && (obj is Point point)
+                && Equals(point);
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode();
+            return X.GetHashCode()
+                 ^ Y.GetHashCode()
+                 ^ Z.GetHashCode()
+                 ^ W.GetHashCode();
         }
 
         public override string ToString()

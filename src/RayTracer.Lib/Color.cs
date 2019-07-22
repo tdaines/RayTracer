@@ -4,46 +4,51 @@ namespace RayTracer.Lib
 {
     public struct Color : IEquatable<Color>
     {
-        private Tuple Value { get; }
-        public float R => Value.X;
-        public float G => Value.Y;
-        public float B => Value.Z;
+        public readonly float R;
+        public readonly float G;
+        public readonly float B;
 
         public Color(float red, float green, float blue)
         {
-            Value = new Tuple(red, green, blue, 0);
+            R = red;
+            G = green;
+            B = blue;
         }
 
-        public Color(Tuple tuple) : this(tuple.X, tuple.Y, tuple.Z)
-        {
-        }
-        
         public static Color operator +(Color left, Color right)
         {
-            var sum = left.Value + right.Value;
+            var r = left.R + right.R;
+            var g = left.G + right.G;
+            var b = left.B + right.B;
             
-            return new Color(sum);
+            return new Color(r, g, b);
         }
         
         public static Color operator -(Color left, Color right)
         {
-            var diff = left.Value - right.Value;
+            var r = left.R - right.R;
+            var g = left.G - right.G;
+            var b = left.B - right.B;
             
-            return new Color(diff);
+            return new Color(r, g, b);
         }
 
         public static Color operator *(Color left, Color right)
         {
-            var red = left.R * right.R;
-            var green = left.G * right.G;
-            var blue = left.B * right.B;
+            var r = left.R * right.R;
+            var g = left.G * right.G;
+            var b = left.B * right.B;
 
-            return new Color(red, green, blue);
+            return new Color(r, g, b);
         }
 
         public static Color operator *(Color value, float scalar)
         {
-            return new Color(value.Value * scalar);
+            var r = value.R * scalar;
+            var g = value.G * scalar;
+            var b = value.B * scalar;
+
+            return new Color(r, g, b);
         }
         
         public static Color operator *(float scalar, Color value)
@@ -53,17 +58,23 @@ namespace RayTracer.Lib
         
         public bool Equals(Color other)
         {
-            return Value.Equals(other.Value);
+            return R.ApproximatelyEquals(other.R) 
+                && G.ApproximatelyEquals(other.G)
+                && B.ApproximatelyEquals(other.B);
         }
 
         public override bool Equals(object obj)
         {
-            return obj != null && Equals((Color) obj);
+            return (obj != null) 
+                && (obj is Color color)
+                && Equals(color);
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode();
+            return R.GetHashCode()
+                 ^ G.GetHashCode()
+                 ^ B.GetHashCode();
         }
 
         public override string ToString()

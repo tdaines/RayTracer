@@ -4,7 +4,7 @@ namespace RayTracer.Lib
 {
     public static class Extensions
     {
-        public static bool ApproximatelyEquals(this float left, float right, float epsilon = 0.000001f)
+        public static bool ApproximatelyEquals(this float left, float right, float epsilon = 0.0001f)
         {
             // If they are equal anyway, just return True.
             if (left.Equals(right))

@@ -4,42 +4,64 @@ namespace RayTracer.Lib
 {
     public struct Vector : IEquatable<Vector>
     {
-        public Tuple Value { get; }
-        public float X => Value.X;
-        public float Y => Value.Y;
-        public float Z => Value.Z;
-        public float W => Value.W;
+        public readonly float X;
+        public readonly float Y;
+        public readonly float Z;
+        public readonly float W;
 
-        public Vector(float x, float y, float z)
-        {
-            Value = new Tuple(x, y, z, 0);
-        }
-
-        public Vector(Tuple tuple) : this(tuple.X, tuple.Y, tuple.Z)
+        public Vector(float x, float y, float z) : this(x, y, z, 0)
         {
         }
         
+        public Vector(float x, float y, float z, float w)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            W = w;
+        }
+
         public static Vector operator -(Vector left, Vector right)
         {
-            var diff = left.Value - right.Value;
-
-            return new Vector(diff);
+            var x = left.X - right.X;
+            var y = left.Y - right.Y;
+            var z = left.Z - right.Z;
+            var w = left.W - right.W;
+            
+            return new Vector(x, y, z, w);
         }
         
         public static Vector operator +(Vector left, Vector right)
         {
-            var sum = left.Value + right.Value;
-
-            return new Vector(sum);
+            var x = left.X + right.X;
+            var y = left.Y + right.Y;
+            var z = left.Z + right.Z;
+            var w = left.W + right.W;
+            
+            return new Vector(x, y, z, w);
         }
         
         public static Vector operator -(Vector value)
         {
-            var negated = -value.Value;
-            return new Vector(negated);
+            return new Vector(-value.X, -value.Y, -value.Z, -value.W);
+        }
+        
+        public static Vector operator *(Vector value, float scalar)
+        {
+            var x = value.X * scalar;
+            var y = value.Y * scalar;
+            var z = value.Z * scalar;
+            var w = value.W * scalar;
+            
+            return new Vector(x, y, z, w);
+        }
+        
+        public static Vector operator *(float scalar, Vector value)
+        {
+            return value * scalar;
         }
 
-        public float Magnitude()
+        public float Length()
         {
             var sum = (X * X) +
                       (Y * Y) +
@@ -48,47 +70,56 @@ namespace RayTracer.Lib
 
             return MathF.Sqrt(sum);
         }
-        
-        public Vector Normalize()
+
+        public static Vector Normalize(Vector vector)
         {
-            var magnitude = Magnitude();
-            var x = X / magnitude;
-            var y = Y / magnitude;
-            var z = Z / magnitude;
+            var length = vector.Length();
+            var x = vector.X / length;
+            var y = vector.Y / length;
+            var z = vector.Z / length;
+            var w = vector.W / length;
             
-            return new Vector(x, y, z);
+            return new Vector(x, y, z, w);
         }
 
-        public float Dot(Vector other)
+        public static float Dot(Vector left, Vector right)
         {
-            return (X * other.X) +
-                   (Y * other.Y) +
-                   (Z * other.Z) +
-                   (W * other.W);
+            return (left.X * right.X) +
+                   (left.Y * right.Y) +
+                   (left.Z * right.Z) +
+                   (left.W * right.W);
         }
 
-        public Vector Cross(Vector other)
+        public static Vector Cross(Vector left, Vector right)
         {
-            var x = (Y * other.Z) - (Z * other.Y);
-            var y = (Z * other.X) - (X * other.Z);
-            var z = (X * other.Y) - (Y * other.X);
+            var x = (left.Y * right.Z) - (left.Z * right.Y);
+            var y = (left.Z * right.X) - (left.X * right.Z);
+            var z = (left.X * right.Y) - (left.Y * right.X);
             
             return new Vector(x, y, z);
         }
 
         public bool Equals(Vector other)
         {
-            return Value.Equals(other.Value);
+            return X.ApproximatelyEquals(other.X) 
+                && Y.ApproximatelyEquals(other.Y)
+                && Z.ApproximatelyEquals(other.Z)
+                && W.ApproximatelyEquals(other.W);
         }
         
         public override bool Equals(object obj)
         {
-            return obj != null && Equals((Vector) obj);
+            return (obj != null) 
+                && (obj is Vector vector)
+                && Equals(vector);
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode();
+            return X.GetHashCode()
+                 ^ Y.GetHashCode()
+                 ^ Z.GetHashCode()
+                 ^ W.GetHashCode();
         }
 
         public override string ToString()

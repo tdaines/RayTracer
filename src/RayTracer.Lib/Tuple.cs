@@ -70,14 +70,16 @@ namespace RayTracer.Lib
         public bool Equals(Tuple other)
         {
             return X.ApproximatelyEquals(other.X)
-                   && Y.ApproximatelyEquals(other.Y)
-                   && Z.ApproximatelyEquals(other.Z)
-                   && W.ApproximatelyEquals(other.W);
+                && Y.ApproximatelyEquals(other.Y)
+                && Z.ApproximatelyEquals(other.Z)
+                && W.ApproximatelyEquals(other.W);
         }
 
         public override bool Equals(object obj)
         {
-            return obj != null && Equals((Tuple) obj);
+            return (obj != null) 
+                && (obj is Tuple tuple)
+                && Equals(tuple);
         }
 
         public override int GetHashCode()
