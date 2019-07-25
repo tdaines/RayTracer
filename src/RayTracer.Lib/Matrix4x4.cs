@@ -1,12 +1,13 @@
 using System;
+using System.Diagnostics;
 
 namespace RayTracer.Lib
 {
     public struct Matrix4x4 : IEquatable<Matrix4x4>
     {
         private readonly float[,] matrix;
-        private const int NUM_ROWS = 4;
-        private const int NUM_COLS = 4;
+        public const int NUM_ROWS = 4;
+        public const int NUM_COLS = 4;
         
         public Matrix4x4(float m00, float m01, float m02, float m03,
                          float m10, float m11, float m12, float m13,
@@ -105,6 +106,93 @@ namespace RayTracer.Lib
         public static Vector operator *(Vector vector, Matrix4x4 matrix)
         {
             return matrix * vector;
+        }
+
+        public static Matrix4x4 Transpose(Matrix4x4 matrix)
+        {
+            return new Matrix4x4(
+                matrix[0, 0], matrix[1, 0], matrix[2, 0], matrix[3, 0],
+                matrix[0, 1], matrix[1, 1], matrix[2, 1], matrix[3, 1],
+                matrix[0, 2], matrix[1, 2], matrix[2, 2], matrix[3, 2], 
+                matrix[0, 3], matrix[1, 3], matrix[2, 3], matrix[3, 3]);
+        }
+
+        public static Matrix3x3 SubMatrix(Matrix4x4 matrix, int row, int column)
+        {
+            float[] subMatrix = new float[Matrix3x3.NUM_ROWS * Matrix3x3.NUM_COLS];
+            int index = 0;
+            
+            for (int r = 0; r < NUM_ROWS; r++)
+            {
+                if (r == row) r++;
+
+                if (r >= NUM_ROWS) break;
+
+                for (int c = 0; c < NUM_COLS; c++)
+                {
+                    if (c == column) c++;
+
+                    if (c >= NUM_COLS) break;
+
+                    subMatrix[index++] = matrix[r, c];
+                }
+            }
+
+            return new Matrix3x3(
+                subMatrix[0], subMatrix[1], subMatrix[2],
+                subMatrix[3], subMatrix[4], subMatrix[5],
+                subMatrix[6], subMatrix[7], subMatrix[8]);
+        }
+        
+        public static float Minor(Matrix4x4 matrix, int row, int column)
+        {
+            return Matrix3x3.Determinate(SubMatrix(matrix, row, column));
+        }
+
+        public static float Cofactor(Matrix4x4 matrix, int row, int column)
+        {
+            bool isOdd = ((row + column) & 0x01) == 1;
+            float minor = Minor(matrix, row, column);
+
+            if (isOdd)
+            {
+                return -minor;
+            }
+            
+            return minor;
+        }
+        
+        public static float Determinate(Matrix4x4 matrix)
+        {
+            return matrix[0, 0] * Cofactor(matrix, 0, 0)
+                 + matrix[0, 1] * Cofactor(matrix, 0, 1)
+                 + matrix[0, 2] * Cofactor(matrix, 0, 2)
+                 + matrix[0, 3] * Cofactor(matrix, 0, 3);
+        }
+
+        public static bool IsInvertible(Matrix4x4 matrix)
+        {
+            float determinate = Determinate(matrix);
+            return determinate < 0 || determinate > 0;
+        }
+
+        public static Matrix4x4 Inverse(Matrix4x4 matrix)
+        {
+            float determinate = Determinate(matrix);
+
+            var cofactors = new Matrix4x4(
+                Cofactor(matrix, 0, 0), Cofactor(matrix, 0, 1), Cofactor(matrix, 0, 2), Cofactor(matrix, 0, 3),
+                Cofactor(matrix, 1, 0), Cofactor(matrix, 1, 1), Cofactor(matrix, 1, 2), Cofactor(matrix, 1, 3),
+                Cofactor(matrix, 2, 0), Cofactor(matrix, 2, 1), Cofactor(matrix, 2, 2), Cofactor(matrix, 2, 3),
+                Cofactor(matrix, 3, 0), Cofactor(matrix, 3, 1), Cofactor(matrix, 3, 2), Cofactor(matrix, 3, 3));
+
+            var transposed = Transpose(cofactors);
+            
+            return new Matrix4x4(
+                transposed[0, 0] / determinate, transposed[0, 1] / determinate, transposed[0, 2] / determinate, transposed[0, 3] / determinate,
+                transposed[1, 0] / determinate, transposed[1, 1] / determinate, transposed[1, 2] / determinate, transposed[1, 3] / determinate,
+                transposed[2, 0] / determinate, transposed[2, 1] / determinate, transposed[2, 2] / determinate, transposed[2, 3] / determinate,
+                transposed[3, 0] / determinate, transposed[3, 1] / determinate, transposed[3, 2] / determinate, transposed[3, 3] / determinate);
         }
         
         public bool Equals(Matrix4x4 other)

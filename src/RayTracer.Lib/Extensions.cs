@@ -24,13 +24,14 @@ namespace RayTracer.Lib
             }
 
             // Handle zero to avoid division by zero
-            float divisor = MathF.Max(left, right);
-            if (divisor.Equals(0))
-            {
-                divisor = MathF.Min(left, right);
-            }
+//            float divisor = MathF.Max(left, right);
+//            if (divisor.Equals(0))
+//            {
+//                divisor = MathF.Min(left, right);
+//            }
 
-            return MathF.Abs(left - right) / divisor <= epsilon;
+//            return MathF.Abs(left - right) / divisor <= epsilon;
+            return MathF.Abs(left - right) <= epsilon;
         }
     }
 }

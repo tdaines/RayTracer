@@ -16,5 +16,15 @@ namespace RayTracer.Lib.Test
             Assert.Equal(1, matrix[1, 0]);
             Assert.Equal(-2, matrix[1, 1]);
         }
+
+        [Fact]
+        public void Determinate()
+        {
+            var matrix = new Matrix2x2(
+                1, 5,
+                -3, 2);
+
+            Assert.Equal(17, Matrix2x2.Determinate(matrix));
+        }
     }
 }

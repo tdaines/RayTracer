@@ -5,8 +5,8 @@ namespace RayTracer.Lib
     public struct Matrix2x2 : IEquatable<Matrix2x2>
     {
         private readonly float[,] matrix;
-        private const int NUM_ROWS = 2;
-        private const int NUM_COLS = 2;
+        public const int NUM_ROWS = 2;
+        public const int NUM_COLS = 2;
         
         public Matrix2x2(float m00, float m01,
                          float m10, float m11)
@@ -22,8 +22,9 @@ namespace RayTracer.Lib
 
         public static Matrix2x2 Identity()
         {
-            return new Matrix2x2(1, 0,
-                                 0, 1);
+            return new Matrix2x2(
+                1, 0, 
+                0, 1);
         }
         
         public float this[int row, int col] => matrix[row, col];
@@ -36,6 +37,11 @@ namespace RayTracer.Lib
         public static bool operator !=(Matrix2x2 left, Matrix2x2 right)
         {
             return !left.Equals(right);
+        }
+
+        public static float Determinate(Matrix2x2 matrix)
+        {
+            return (matrix[0, 0] * matrix[1, 1]) - (matrix[0, 1] * matrix[1, 0]);
         }
         
         public bool Equals(Matrix2x2 other)
