@@ -13,7 +13,7 @@ namespace RayTracer.Lib
         {
         }
 
-        private Point(float x, float y, float z, float w)
+        public Point(float x, float y, float z, float w)
         {
             X = x;
             Y = y;

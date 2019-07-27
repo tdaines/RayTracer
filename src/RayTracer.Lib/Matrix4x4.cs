@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 
 namespace RayTracer.Lib
 {
@@ -39,10 +38,95 @@ namespace RayTracer.Lib
 
         public static Matrix4x4 Identity()
         {
-            return new Matrix4x4(1, 0, 0, 0,
-                                 0, 1, 0, 0,
-                                 0, 0, 1, 0,
-                                 0, 0, 0, 1);
+            return new Matrix4x4(
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1);
+        }
+
+        public static Matrix4x4 Translation(float x, float y, float z)
+        {
+            return new Matrix4x4(
+                1, 0, 0, x,
+                0, 1, 0, y,
+                0, 0, 1, z,
+                0, 0, 0, 1);
+        }
+        
+        public Matrix4x4 Translate(float x, float y, float z)
+        {
+            return Translation(x, y, z) * this;
+        }
+        
+        public static Matrix4x4 Scaling(float x, float y, float z)
+        {
+            return new Matrix4x4(
+                x, 0, 0, 0,
+                0, y, 0, 0,
+                0, 0, z, 0,
+                0, 0, 0, 1);
+        }
+        
+        public Matrix4x4 Scale(float x, float y, float z)
+        {
+            return Scaling(x, y, z) * this;
+        }
+
+        public static Matrix4x4 RotationX(float radians)
+        {
+            return new Matrix4x4(
+                1,                  0,                   0, 0,
+                0, MathF.Cos(radians), -MathF.Sin(radians), 0,
+                0, MathF.Sin(radians),  MathF.Cos(radians), 0,
+                0,                  0,                   0, 1);
+        }
+        
+        public Matrix4x4 RotateX(float radians)
+        {
+            return RotationX(radians) * this;
+        }
+        
+        public static Matrix4x4 RotationY(float radians)
+        {
+            return new Matrix4x4(
+                 MathF.Cos(radians), 0, MathF.Sin(radians), 0,
+                                  0, 1,                  0, 0,
+                -MathF.Sin(radians), 0, MathF.Cos(radians), 0,
+                                  0, 0,                  0, 1);
+        }
+        
+        public Matrix4x4 RotateY(float radians)
+        {
+            return RotationY(radians) * this;
+        }
+        
+        public static Matrix4x4 RotationZ(float radians)
+        {
+            return new Matrix4x4(
+                MathF.Cos(radians), -MathF.Sin(radians), 0, 0,
+                MathF.Sin(radians),  MathF.Cos(radians), 0, 0,
+                                 0,                   0, 1, 0,
+                                 0,                   0, 0, 1);
+        }
+
+        public Matrix4x4 RotateZ(float radians)
+        {
+            return RotationZ(radians) * this;
+        }
+        
+        public static Matrix4x4 Shearing(float xy, float xz, float yx, float yz, float zx, float zy)
+        {
+            return new Matrix4x4(
+                1,  xy, xz, 0,
+                yx,  1, yz, 0,
+                zx, zy,  1, 0,
+                 0,  0,  0, 1);
+        }
+
+        public Matrix4x4 Shear(float xy, float xz, float yx, float yz, float zx, float zy)
+        {
+            return Shearing(xy, xz, yx, yz, zx, zy) * this;
         }
         
         public float this[int row, int col] => matrix[row, col];
@@ -64,10 +148,10 @@ namespace RayTracer.Lib
             {
                 for (int col = 0; col < NUM_COLS; col++)
                 {
-                    result[row, col] = left[row, 0] * right[0, col] +
-                                       left[row, 1] * right[1, col] +
-                                       left[row, 2] * right[2, col] +
-                                       left[row, 3] * right[3, col];
+                    result[row, col] = left[row, 0] * right[0, col]
+                                     + left[row, 1] * right[1, col]
+                                     + left[row, 2] * right[2, col]
+                                     + left[row, 3] * right[3, col];
                 }
             }
 
@@ -80,25 +164,25 @@ namespace RayTracer.Lib
 
         public static Vector operator *(Matrix4x4 matrix, Vector vector)
         {
-            var x = matrix[0, 0] * vector.X +
-                    matrix[0, 1] * vector.Y +
-                    matrix[0, 2] * vector.Z +
-                    matrix[0, 3] * vector.W;
+            var x = matrix[0, 0] * vector.X
+                  + matrix[0, 1] * vector.Y
+                  + matrix[0, 2] * vector.Z 
+                  + matrix[0, 3] * vector.W;
             
-            var y = matrix[1, 0] * vector.X +
-                    matrix[1, 1] * vector.Y +
-                    matrix[1, 2] * vector.Z +
-                    matrix[1, 3] * vector.W;
+            var y = matrix[1, 0] * vector.X
+                  + matrix[1, 1] * vector.Y
+                  + matrix[1, 2] * vector.Z
+                  + matrix[1, 3] * vector.W;
             
-            var z = matrix[2, 0] * vector.X +
-                    matrix[2, 1] * vector.Y +
-                    matrix[2, 2] * vector.Z +
-                    matrix[2, 3] * vector.W;
+            var z = matrix[2, 0] * vector.X
+                  + matrix[2, 1] * vector.Y
+                  + matrix[2, 2] * vector.Z
+                  + matrix[2, 3] * vector.W;
             
-            var w = matrix[3, 0] * vector.X +
-                    matrix[3, 1] * vector.Y +
-                    matrix[3, 2] * vector.Z +
-                    matrix[3, 3] * vector.W;
+            var w = matrix[3, 0] * vector.X
+                  + matrix[3, 1] * vector.Y
+                  + matrix[3, 2] * vector.Z
+                  + matrix[3, 3] * vector.W;
             
             return new Vector(x, y, z, w);
         }
@@ -106,6 +190,36 @@ namespace RayTracer.Lib
         public static Vector operator *(Vector vector, Matrix4x4 matrix)
         {
             return matrix * vector;
+        }
+        
+        public static Point operator *(Matrix4x4 matrix, Point point)
+        {
+            var x = matrix[0, 0] * point.X
+                  + matrix[0, 1] * point.Y
+                  + matrix[0, 2] * point.Z 
+                  + matrix[0, 3] * point.W;
+            
+            var y = matrix[1, 0] * point.X
+                  + matrix[1, 1] * point.Y
+                  + matrix[1, 2] * point.Z
+                  + matrix[1, 3] * point.W;
+            
+            var z = matrix[2, 0] * point.X
+                  + matrix[2, 1] * point.Y
+                  + matrix[2, 2] * point.Z
+                  + matrix[2, 3] * point.W;
+            
+            var w = matrix[3, 0] * point.X
+                  + matrix[3, 1] * point.Y
+                  + matrix[3, 2] * point.Z
+                  + matrix[3, 3] * point.W;
+            
+            return new Point(x, y, z, w);
+        }
+        
+        public static Point operator *(Point point, Matrix4x4 matrix)
+        {
+            return matrix * point;
         }
 
         public static Matrix4x4 Transpose(Matrix4x4 matrix)

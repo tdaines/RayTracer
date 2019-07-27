@@ -19,15 +19,11 @@ namespace RayTracer.Exercises.Cannon
 
             while (projectile.Position.Y >= 0)
             {
-                int col = (int)projectile.Position.X;
-                int row = canvas.Height - (int) projectile.Position.Y;
-
-                canvas[col, row] = Color.Red;
-
+                canvas.SetPixel(projectile.Position, Color.Red);
                 projectile = Tick(environment, projectile);
             }
             
-            File.WriteAllText("cannon.ppm", canvas.GetPortablePixmap());
+            File.WriteAllLines("cannon.ppm", canvas.GetPortablePixmap());
         }
 
         private Projectile Tick(Environment environment, Projectile projectile)

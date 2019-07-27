@@ -34,15 +34,15 @@ namespace RayTracer.Lib.Test
             canvas[2, 1] = c2;
             canvas[4, 2] = c3;
 
-            var pixMap = canvas.GetPortablePixmap();
+            var pixMapLines = canvas.GetPortablePixmap();
+            var pixMap = string.Join('\n', pixMapLines);
             
             Assert.Equal("P3\n" +
-                                  "5 3\n" +
-                                  "255\n" +
-                                  "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \n" +
-                                  "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n" +
-                                  "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 \n" +
-                                  "\n", pixMap);
+                         "5 3\n" +
+                         "255\n" +
+                         "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0 \n" +
+                         "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0 \n" +
+                         "0 0 0 0 0 0 0 0 0 0 0 0 0 0 255 \n", pixMap);
         }
         
         [Fact]
@@ -50,7 +50,8 @@ namespace RayTracer.Lib.Test
         {
             var background = new Color(1, 0.8f, 0.6f);
             var canvas = new Canvas(10, 2, background);
-            var pixMap = canvas.GetPortablePixmap();
+            var pixMapLines = canvas.GetPortablePixmap();
+            var pixMap = string.Join('\n', pixMapLines);
             
             Assert.Equal("P3\n" +
                          "10 2\n" +
@@ -58,8 +59,7 @@ namespace RayTracer.Lib.Test
                          "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 \n" +
                          "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 \n" +
                          "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 \n" +
-                         "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 \n" +
-                         "\n", pixMap);
+                         "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 \n", pixMap);
         }
     }
 }

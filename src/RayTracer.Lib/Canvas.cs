@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Text;
 
 namespace RayTracer.Lib
@@ -43,7 +41,15 @@ namespace RayTracer.Lib
             set => surface[x, y] = value;
         }
 
-        public string GetPortablePixmap()
+        public void SetPixel(Point point, Color color)
+        {
+            int col = (int)point.X;
+            int row = Height - (int)point.Y;
+
+            surface[col, row] = color;
+        }
+
+        public string[] GetPortablePixmap()
         {
             var lines = new List<string>(((Width * Height) / 5) + 3);
             
@@ -84,9 +90,8 @@ namespace RayTracer.Lib
             }
             
             lines.Add("");
-            lines.Add("");
 
-            return string.Join('\n', lines);
+            return lines.ToArray();
         }
 
         private static int Clamp(float value)

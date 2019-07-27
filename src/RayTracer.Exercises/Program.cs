@@ -4,7 +4,8 @@
     {
         static void Main(string[] args)
         {
-            new Cannon.Cannon().Run();
+//            new Cannon.Cannon().Run();
+            new ClockFace.ClockFace().Run();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace RayTracer.Lib.Test
@@ -245,8 +246,6 @@ namespace RayTracer.Lib.Test
                 -0.02901f, -0.14630f, -0.10926f,  0.12963f,
                  0.17778f,  0.06667f, -0.26667f,  0.33333f);
 
-            inverse = Matrix4x4.Inverse(matrix);
-            
             Assert.Equal(expected, Matrix4x4.Inverse(matrix));
         }
 
@@ -268,6 +267,165 @@ namespace RayTracer.Lib.Test
             var product = left * right;
             
             Assert.Equal(left, product * Matrix4x4.Inverse(right));
+        }
+
+        [Fact]
+        public void TranslationOfPoint()
+        {
+            var transform = Matrix4x4.Translation(5, -3, 2);
+            var point = new Point(-3, 4, 5);
+            
+            Assert.Equal(new Point(2, 1, 7), transform * point);
+            
+            transform = Matrix4x4.Translation(5, -3, 2);
+            var inverse = Matrix4x4.Inverse(transform);
+            
+            point = new Point(-3, 4, 5);
+            
+            Assert.Equal(new Point(-8, 7, 3), inverse * point);
+        }
+        
+        [Fact]
+        public void TranslationOfVector()
+        {
+            var transform = Matrix4x4.Translation(5, -3, 2);
+            var vector = new Vector(-3, 4, 5);
+            
+            Assert.Equal(vector, transform * vector);
+        }
+        
+        [Fact]
+        public void ScalingOfPoint()
+        {
+            var transform = Matrix4x4.Scaling(2, 3, 4);
+            var point = new Point(-4, 6, 8);
+            
+            Assert.Equal(new Point(-8, 18, 32), transform * point);
+
+            transform = Matrix4x4.Scaling(-1, 1, 1);
+            point = new Point(2, 3, 4);
+            
+            Assert.Equal(new Point(-2, 3, 4), transform * point);
+        }
+        
+        [Fact]
+        public void ScalingOfVector()
+        {
+            var transform = Matrix4x4.Scaling(2, 3, 4);
+            var vector = new Vector(-4, 6, 8);
+            
+            Assert.Equal(new Vector(-8, 18, 32), transform * vector);
+            
+            transform = Matrix4x4.Scaling(2, 3, 4);
+            var inverse = Matrix4x4.Inverse(transform);
+            
+            vector = new Vector(-4, 6, 8);
+            
+            Assert.Equal(new Vector(-2, 2, 2), inverse * vector);
+        }
+
+        [Fact]
+        public void RotationXOfPoint()
+        {
+            var halfQuarter = Matrix4x4.RotationX(MathF.PI / 4);
+            var quarter = Matrix4x4.RotationX(MathF.PI / 2);
+            var point = new Point(0, 1, 0);
+            
+            Assert.Equal(new Point(0, MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2), halfQuarter * point);
+            Assert.Equal(new Point(0, 0, 1), quarter * point);
+
+            var inverseHalfQuarter = Matrix4x4.Inverse(halfQuarter);
+            var inverseQuarter = Matrix4x4.Inverse(quarter);
+            
+            Assert.Equal(new Point(0, MathF.Sqrt(2) / 2, -MathF.Sqrt(2) / 2), inverseHalfQuarter * point);
+            Assert.Equal(new Point(0, 0, -1), inverseQuarter * point);
+        }
+        
+        [Fact]
+        public void RotationYOfPoint()
+        {
+            var halfQuarter = Matrix4x4.RotationY(MathF.PI / 4);
+            var quarter = Matrix4x4.RotationY(MathF.PI / 2);
+            var point = new Point(0, 0, 1);
+            
+            Assert.Equal(new Point(MathF.Sqrt(2) / 2, 0, MathF.Sqrt(2) / 2), halfQuarter * point);
+            Assert.Equal(new Point(1, 0, 0), quarter * point);
+
+            var inverseHalfQuarter = Matrix4x4.Inverse(halfQuarter);
+            var inverseQuarter = Matrix4x4.Inverse(quarter);
+            
+            Assert.Equal(new Point(-MathF.Sqrt(2) / 2, 0, MathF.Sqrt(2) / 2), inverseHalfQuarter * point);
+            Assert.Equal(new Point(-1, 0, 0), inverseQuarter * point);
+        }
+        
+        [Fact]
+        public void RotationZOfPoint()
+        {
+            var halfQuarter = Matrix4x4.RotationZ(MathF.PI / 4);
+            var quarter = Matrix4x4.RotationZ(MathF.PI / 2);
+            var point = new Point(0, 1, 0);
+            
+            Assert.Equal(new Point(-MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2, 0), halfQuarter * point);
+            Assert.Equal(new Point(-1, 0, 0), quarter * point);
+
+            var inverseHalfQuarter = Matrix4x4.Inverse(halfQuarter);
+            var inverseQuarter = Matrix4x4.Inverse(quarter);
+            
+            Assert.Equal(new Point(MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2, 0), inverseHalfQuarter * point);
+            Assert.Equal(new Point(1, 0, 0), inverseQuarter * point);
+        }
+
+        [Fact]
+        public void Shearing()
+        {
+            var transform = Matrix4x4.Shearing(1, 0, 0, 0, 0, 0);
+            var point = new Point(2, 3, 4);
+            
+            Assert.Equal(new Point(5, 3, 4), transform * point);
+
+            transform = Matrix4x4.Shearing(0, 1, 0, 0, 0, 0);
+            Assert.Equal(new Point(6, 3, 4), transform * point);
+            
+            transform = Matrix4x4.Shearing(0, 0, 1, 0, 0, 0);
+            Assert.Equal(new Point(2, 5, 4), transform * point);
+            
+            transform = Matrix4x4.Shearing(0, 0, 0, 1, 0, 0);
+            Assert.Equal(new Point(2, 7, 4), transform * point);
+            
+            transform = Matrix4x4.Shearing(0, 0, 0, 0, 1, 0);
+            Assert.Equal(new Point(2, 3, 6), transform * point);
+            
+            transform = Matrix4x4.Shearing(0, 0, 0, 0, 0, 1);
+            Assert.Equal(new Point(2, 3, 7), transform * point);
+        }
+
+        [Fact]
+        public void MultipleTransformations()
+        {
+            var point = new Point(1, 0, 1);
+            var rotate = Matrix4x4.RotationX(MathF.PI / 2);
+            var scale = Matrix4x4.Scaling(5, 5, 5);
+            var translate = Matrix4x4.Translation(10, 5, 7);
+
+            point = rotate * point;
+            Assert.Equal(new Point(1, -1, 0), point);
+
+            point = scale * point;
+            Assert.Equal(new Point(5, -5, 0), point);
+
+            point = translate * point;
+            Assert.Equal(new Point(15, 0, 7), point);
+
+            point = new Point(1, 0, 1);
+            var transform = translate * scale * rotate;
+            Assert.Equal(new Point(15, 0, 7), transform * point);
+
+            transform = Matrix4x4.Identity()
+                .RotateX(MathF.PI / 2)
+                .Scale(5, 5, 5)
+                .Translate(10, 5, 7);
+            
+            Assert.Equal(new Point(15, 0, 7), transform * point);
         }
     }
 }
