@@ -5,7 +5,7 @@ namespace RayTracer.Exercises.Cannon
 {
     public class Cannon
     {
-        public void Run()
+        public static void Run()
         {
             var canvas = new Canvas(900, 550);
             
@@ -26,7 +26,7 @@ namespace RayTracer.Exercises.Cannon
             File.WriteAllLines("cannon.ppm", canvas.GetPortablePixmap());
         }
 
-        private Projectile Tick(Environment environment, Projectile projectile)
+        private static Projectile Tick(Environment environment, Projectile projectile)
         {
             var position = projectile.Position + projectile.Velocity;
             var velocity = projectile.Velocity + environment.Gravity + environment.Wind;

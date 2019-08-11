@@ -85,5 +85,19 @@ namespace RayTracer.Lib.Test
             Assert.Equal(new Vector(-1, 2, -1), Vector.Cross(left, right));
             Assert.Equal(new Vector(1, -2, 1), Vector.Cross(right, left));
         }
+
+        [Fact]
+        public void Reflect()
+        {
+            var v = new Vector(1, -1, 0);
+            var normal = new Vector(0, 1, 0);
+            
+            Assert.Equal(new Vector(1, 1, 0), Vector.Reflect(v, normal));
+            
+            v = new Vector(0, -1, 0);
+            normal = new Vector(MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2, 0);
+            
+            Assert.Equal(new Vector(1, 0, 0), Vector.Reflect(v, normal));
+        }
     }
 }

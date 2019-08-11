@@ -99,6 +99,11 @@ namespace RayTracer.Lib
             return new Vector(x, y, z);
         }
 
+        public static Vector Reflect(Vector v, Vector normal)
+        {
+            return v - (normal * 2 * Vector.Dot(v, normal));
+        }
+
         public bool Equals(Vector other)
         {
             return X.ApproximatelyEquals(other.X) 

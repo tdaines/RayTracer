@@ -5,9 +5,10 @@ namespace RayTracer.Exercises
     {
         static void Main(string[] args)
         {
-//            new Cannon.Cannon().Run();
-//            new ClockFace.ClockFace().Run();
-            new SphereSilhouette.Silhouette().Run();
+//            Cannon.Cannon.Run();
+//            ClockFace.ClockFace.Run();
+//            SphereSilhouette.Silhouette.Run();
+            Sphere.Sphere.Run();
         }
     }
 }

@@ -1,9 +1,10 @@
 using System.IO;
+using System.Runtime.InteropServices;
 using RayTracer.Lib;
 
-namespace RayTracer.Exercises.SphereSilhouette
+namespace RayTracer.Exercises.Sphere
 {
-    public class Silhouette
+    public class Sphere
     {
         public static void Run()
         {
@@ -16,7 +17,10 @@ namespace RayTracer.Exercises.SphereSilhouette
             const float pixelSize = wallSize / canvasPixels;
             
             var canvas = new Canvas(canvasPixels, canvasPixels, Color.Black);
-            var sphere = new Lib.Sphere();
+            var sphere = new Lib.Sphere(new Material(new Color(1, 0.2f, 1)));
+
+            var lightPosition = new Point(-10, 10, -10);
+            var light = new PointLight(lightPosition, Color.White);
 
             for (int y = 0; y < canvas.Width; y++)
             {
@@ -40,12 +44,18 @@ namespace RayTracer.Exercises.SphereSilhouette
 
                     if (intersection != null)
                     {
-                        canvas[x, y] = Color.Red;
+                        var point = ray.Position(intersection.Time);
+                        var normal = intersection.Object.Normal(point);
+                        var eyeVector = -ray.Direction;
+
+                        var color = light.Lighting(intersection.Object.Material, point, eyeVector, normal);
+                        
+                        canvas[x, y] = color;
                     }
                 }
             }
             
-            File.WriteAllLines("silhouette.ppm", canvas.GetPortablePixmap());
+            File.WriteAllLines("sphere.ppm", canvas.GetPortablePixmap());
         }
     }
 }

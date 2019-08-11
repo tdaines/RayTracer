@@ -6,7 +6,7 @@ namespace RayTracer.Exercises.ClockFace
 {
     public class ClockFace
     {
-        public void Run()
+        public static void Run()
         {
             var hours = new Point[12];
             var twelve = new Point(0, 1, 0);
