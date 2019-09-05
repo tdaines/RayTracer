@@ -8,7 +8,8 @@ namespace RayTracer.Lib
         public float Specular { get; }
         public float Shininess { get; }
 
-        public Material(float ambient = 0.1f, float diffuse = 0.9f, float specular = 0.9f, float shininess = 200) : this(Color.White)
+        public Material(float ambient = 0.1f, float diffuse = 0.9f, float specular = 0.9f, float shininess = 200)
+            : this(Color.White, ambient, diffuse, specular, shininess)
         {
         }
         

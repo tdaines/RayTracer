@@ -1,12 +1,24 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace RayTracer.Lib
 {
-    public class Intersections
+    public class Intersections : IEnumerable<Intersection>
     {
         private readonly Intersection[] intersections;
 
         public Intersections(params Intersection[] intersections)
         {
             this.intersections = intersections;
+            Array.Sort(this.intersections);
+        }
+
+        public Intersections(IEnumerable<Intersection> intersections)
+        {
+            this.intersections = intersections.ToArray();
+            Array.Sort(this.intersections);
         }
 
         public Intersection this[int index] => intersections[index];
@@ -15,25 +27,20 @@ namespace RayTracer.Lib
 
         public Intersection Hit()
         {
-            if (intersections.Length == 0)
-            {
-                return null;
-            }
+            return intersections.Length == 0 ? null : intersections[0];
+        }
 
-            Intersection closest = null;
-            var closestTime = float.MaxValue;
-            
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public IEnumerator<Intersection> GetEnumerator()
+        {
             for (int i = 0; i < intersections.Length; i++)
             {
-                var intersection = intersections[i];
-                if (intersection.Time >= 0 && intersection.Time < closestTime)
-                {
-                    closest = intersections[i];
-                    closestTime = closest.Time;
-                }
+                yield return intersections[i];
             }
-            
-            return closest;
         }
     }
 }

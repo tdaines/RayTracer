@@ -1,6 +1,8 @@
+using System;
+
 namespace RayTracer.Lib
 {
-    public class Intersection
+    public class Intersection : IComparable<Intersection>
     {
         public float Time { get; }
         public BaseObject Object { get; }
@@ -9,6 +11,11 @@ namespace RayTracer.Lib
         {
             Time = time;
             Object = obj;
+        }
+
+        public int CompareTo(Intersection other)
+        {
+            return Time.CompareTo(other.Time);
         }
     }
 }
