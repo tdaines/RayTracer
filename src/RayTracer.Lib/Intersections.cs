@@ -27,7 +27,21 @@ namespace RayTracer.Lib
 
         public Intersection Hit()
         {
-            return intersections.Length == 0 ? null : intersections[0];
+            if (intersections.Length == 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < intersections.Length; i++)
+            {
+                var intersection = intersections[i];
+                if (intersection.Time >= 0)
+                {
+                    return intersection;
+                }
+            }
+
+            return null;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
