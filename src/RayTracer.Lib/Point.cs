@@ -9,11 +9,7 @@ namespace RayTracer.Lib
         public readonly float Z;
         public readonly float W;
 
-        public Point(float x, float y, float z) : this(x, y, z, 1)
-        {
-        }
-
-        public Point(float x, float y, float z, float w)
+        public Point(float x, float y, float z, float w = 1)
         {
             X = x;
             Y = y;
@@ -77,5 +73,7 @@ namespace RayTracer.Lib
         {
             return $"Point({X}, {Y}, {Z}, {W})";
         }
+        
+        public static Point Zero => new Point(0, 0, 0);
     }
 }

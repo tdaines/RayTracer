@@ -9,11 +9,7 @@ namespace RayTracer.Lib
         public readonly float Z;
         public readonly float W;
 
-        public Vector(float x, float y, float z) : this(x, y, z, 0)
-        {
-        }
-        
-        public Vector(float x, float y, float z, float w)
+        public Vector(float x, float y, float z, float w = 0)
         {
             X = x;
             Y = y;

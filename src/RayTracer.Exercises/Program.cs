@@ -8,7 +8,8 @@ namespace RayTracer.Exercises
 //            Cannon.Cannon.Run();
 //            ClockFace.ClockFace.Run();
 //            SphereSilhouette.Silhouette.Run();
-            Sphere.Sphere.Run();
+//            Sphere.Sphere.Run();
+            Scene.Scene.Run();
         }
     }
 }

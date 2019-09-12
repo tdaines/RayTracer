@@ -1,6 +1,6 @@
 namespace RayTracer.Lib
 {
-    public class Sphere : BaseObject
+    public class Sphere : Shape
     {
         public Sphere()
         {
@@ -20,13 +20,11 @@ namespace RayTracer.Lib
 
         public override Vector Normal(Point point)
         {
-            var transformInverse = Matrix4x4.Inverse(Transform);
-            
             // Convert point to object space
-            var objectPoint = transformInverse * point;
+            var objectPoint = InverseTransform * point;
 
-            var objectNormal = objectPoint - new Point(0, 0, 0);
-            var worldNormal = Matrix4x4.Transpose(transformInverse) * objectNormal;
+            var objectNormal = objectPoint - Point.Zero;
+            var worldNormal = Matrix4x4.Transpose(InverseTransform) * objectNormal;
             worldNormal = new Vector(worldNormal.X, worldNormal.Y, worldNormal.Z);
             
             return Vector.Normalize(worldNormal);

@@ -5,9 +5,9 @@ namespace RayTracer.Lib
     public class Intersection : IComparable<Intersection>
     {
         public float Time { get; }
-        public BaseObject Object { get; }
+        public Shape Object { get; }
 
-        public Intersection(float time, BaseObject obj)
+        public Intersection(float time, Shape obj)
         {
             Time = time;
             Object = obj;

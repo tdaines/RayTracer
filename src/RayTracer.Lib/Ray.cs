@@ -20,10 +20,9 @@ namespace RayTracer.Lib
 
         public Intersections Intersect(Sphere sphere)
         {
-            var inverseTransform = Matrix4x4.Inverse(sphere.Transform);
-            var ray = Transform(this, inverseTransform);
+            var ray = Transform(this, sphere.InverseTransform);
             
-            Vector sphereToRay = ray.Origin - new Point(0, 0, 0);
+            Vector sphereToRay = ray.Origin - Point.Zero;
 
             var a = Vector.Dot(ray.Direction, ray.Direction);
             var b = 2 * Vector.Dot(ray.Direction, sphereToRay);

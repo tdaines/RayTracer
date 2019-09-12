@@ -1,3 +1,4 @@
+using System;
 using Xunit;
 
 namespace RayTracer.Lib.Test
@@ -87,6 +88,21 @@ namespace RayTracer.Lib.Test
             var ray = new Ray(new Point(0, 0, 0.75f), new Vector(0, 0, -1));
             
             Assert.Equal(inner.Material.Color, world.ColorAt(ray));
+        }
+
+        [Fact]
+        public void RenderDefaultWorld()
+        {
+            var from = new Point(0, 0, -5);
+            var to = new Point(0, 0, 0);
+            var up = new Vector(0, 1, 0);
+            var transform = ViewTransform.Create(from, to, up);
+            var camera = new Camera(11, 11, MathF.PI / 2, transform);
+
+            var world = World.DefaultWorld();
+            var canvas = world.Render(camera);
+            
+            Assert.Equal(new Color(0.38066f, 0.47583f, 0.2855f),  canvas[5, 5]);
         }
     }
 }

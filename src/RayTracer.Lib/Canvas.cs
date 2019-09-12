@@ -37,7 +37,6 @@ namespace RayTracer.Lib
         public Color this[int x, int y]
         {
             get => surface[x, y];
-
             set => surface[x, y] = value;
         }
 

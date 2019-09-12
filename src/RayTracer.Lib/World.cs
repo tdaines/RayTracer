@@ -6,13 +6,13 @@ namespace RayTracer.Lib
     public class World
     {
         public List<PointLight> Lights { get; }
-        public List<BaseObject> Objects { get; }
+        public List<Shape> Objects { get; }
 
         public World()
         {
         }
 
-        public World(PointLight light, List<BaseObject> objects)
+        public World(PointLight light, List<Shape> objects)
         {
             Lights = new List<PointLight>(1) { light };
             Objects = objects;
@@ -27,7 +27,7 @@ namespace RayTracer.Lib
         
         public static World DefaultWorld(PointLight light)
         {
-            var spheres = new List<BaseObject>
+            var spheres = new List<Shape>
             {
                 new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f)),
                 new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f))
@@ -80,6 +80,23 @@ namespace RayTracer.Lib
             var intersectionInfo = new IntersectionInfo(intersection, ray);
 
             return ShadeHit(intersectionInfo);
+        }
+
+        public Canvas Render(Camera camera)
+        {
+            var canvas = new Canvas(camera.Width, camera.Height);
+
+            for (int y = 0; y < camera.Height; y++)
+            {
+                for (int x = 0; x < camera.Width; x++)
+                {
+                    var ray = camera.RayForPixel(x, y);
+                    var color = ColorAt(ray);
+                    canvas[x, y] = color;
+                }
+            }
+
+            return canvas;
         }
     }
 }
