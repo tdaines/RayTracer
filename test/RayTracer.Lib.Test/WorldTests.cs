@@ -13,12 +13,12 @@ namespace RayTracer.Lib.Test
             Assert.Equal(new Point(-10, 10, -10),  world.Lights[0].Position);
             Assert.Equal(Color.White, world.Lights[0].Intensity);
 
-            var sphere = world.Objects[0];
+            var sphere = world.Shapes[0];
             Assert.Equal(new Color(0.8f, 1.0f, 0.6f), sphere.Material.Color);
             Assert.Equal(0.7f, sphere.Material.Diffuse);
             Assert.Equal(0.2f, sphere.Material.Specular);
             
-            sphere = world.Objects[1];
+            sphere = world.Shapes[1];
             Assert.Equal(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), sphere.Transform);
         }
 
@@ -42,7 +42,7 @@ namespace RayTracer.Lib.Test
         {
             var world = World.DefaultWorld();
             var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
-            var shape = world.Objects[0];
+            var shape = world.Shapes[0];
             var intersection = new Intersection(4, shape);
             var intersectionInfo = new IntersectionInfo(intersection, ray);
             
@@ -54,11 +54,26 @@ namespace RayTracer.Lib.Test
         {
             var world = World.DefaultWorld(new PointLight(new Point(0, 0.25f, 0), Color.White));
             var ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
-            var shape = world.Objects[1];
+            var shape = world.Shapes[1];
             var intersection = new Intersection(0.5f, shape);
             var intersectionInfo = new IntersectionInfo(intersection, ray);
             
             Assert.Equal(new Color(0.90498f, 0.90498f, 0.90498f), world.ShadeHit(intersectionInfo));
+        }
+
+        [Fact]
+        public void ShadeHitIntersectionInShadow()
+        {
+            var world = new World();
+            world.Lights.Add(new PointLight(new Point(0, 0, -10), Color.White));
+            world.Shapes.Add(new Sphere());
+            world.Shapes.Add(new Sphere(Matrix4x4.Translation(0, 0, 10)));
+            
+            var ray = new Ray(new Point(0, 0, 5), new Vector(0, 0, 1));
+            var intersection = new Intersection(4, world.Shapes[1]);
+            var intersectionInfo = new IntersectionInfo(intersection, ray);
+            
+            Assert.Equal(new Color(0.1f, 0.1f, 0.1f), world.ShadeHit(intersectionInfo));
         }
 
         [Fact]
@@ -83,8 +98,8 @@ namespace RayTracer.Lib.Test
         public void ColorAtIntersectionBehindRay()
         {
             var world = World.DefaultWorld();
-            var outer = world.Objects[0] = new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f, ambient: 1));
-            var inner = world.Objects[1] = new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), new Material(ambient: 1));
+            var outer = world.Shapes[0] = new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f, ambient: 1));
+            var inner = world.Shapes[1] = new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), new Material(ambient: 1));
             var ray = new Ray(new Point(0, 0, 0.75f), new Vector(0, 0, -1));
             
             Assert.Equal(inner.Material.Color, world.ColorAt(ray));
@@ -103,6 +118,42 @@ namespace RayTracer.Lib.Test
             var canvas = world.Render(camera);
             
             Assert.Equal(new Color(0.38066f, 0.47583f, 0.2855f),  canvas[5, 5]);
+        }
+
+        [Fact]
+        public void IsShadowed()
+        {
+            var world = World.DefaultWorld();
+            var point = new Point(0, 10, 0);
+            
+            Assert.False(world.IsShadowed(point, world.Lights[0]));
+        }
+        
+        [Fact]
+        public void IsShadowedObjectBetweenPointAndLight()
+        {
+            var world = World.DefaultWorld();
+            var point = new Point(10, -10, 10);
+            
+            Assert.True(world.IsShadowed(point, world.Lights[0]));
+        }
+        
+        [Fact]
+        public void IsShadowedLightBetweenPointAndObject()
+        {
+            var world = World.DefaultWorld();
+            var point = new Point(-20, 20, -20);
+            
+            Assert.False(world.IsShadowed(point, world.Lights[0]));
+        }
+        
+        [Fact]
+        public void IsShadowedPointBetweenLightAndObject()
+        {
+            var world = World.DefaultWorld();
+            var point = new Point(-2, 2, -2);
+            
+            Assert.False(world.IsShadowed(point, world.Lights[0]));
         }
     }
 }

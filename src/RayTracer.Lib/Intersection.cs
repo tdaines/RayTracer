@@ -7,10 +7,10 @@ namespace RayTracer.Lib
         public float Time { get; }
         public Shape Object { get; }
 
-        public Intersection(float time, Shape obj)
+        public Intersection(float time, Shape shape)
         {
             Time = time;
-            Object = obj;
+            Object = shape;
         }
 
         public int CompareTo(Intersection other)

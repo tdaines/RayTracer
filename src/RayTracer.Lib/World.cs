@@ -6,16 +6,12 @@ namespace RayTracer.Lib
     public class World
     {
         public List<PointLight> Lights { get; }
-        public List<Shape> Objects { get; }
+        public List<Shape> Shapes { get; }
 
         public World()
         {
-        }
-
-        public World(PointLight light, List<Shape> objects)
-        {
-            Lights = new List<PointLight>(1) { light };
-            Objects = objects;
+            Lights = new List<PointLight>();
+            Shapes = new List<Shape>();
         }
 
         public static World DefaultWorld()
@@ -27,22 +23,22 @@ namespace RayTracer.Lib
         
         public static World DefaultWorld(PointLight light)
         {
-            var spheres = new List<Shape>
-            {
-                new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f)),
-                new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f))
-            };
+            var world = new World();
             
-            return new World(light, spheres);
+            world.Lights.Add(light);
+            world.Shapes.Add(new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f)));
+            world.Shapes.Add(new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)));
+
+            return world;
         }
 
         public Intersections Intersect(Ray ray)
         {
             List<Intersection> allIntersections = new List<Intersection>();
 
-            for (int i = 0; i < Objects.Count; i++)
+            for (int i = 0; i < Shapes.Count; i++)
             {
-                var intersections = ray.Intersect((Sphere)Objects[i]);
+                var intersections = ray.Intersect((Sphere)Shapes[i]);
                 allIntersections.AddRange(intersections.Where(xs => xs.Time >= 0));
             }
             
@@ -55,13 +51,15 @@ namespace RayTracer.Lib
             var point = intersectionInfo.Point;
             var eye = intersectionInfo.EyeVector;
             var normal = intersectionInfo.Normal;
-            
-            var color = new Color(0, 0, 0);
+            var overPoint = intersectionInfo.OverPoint;
+
+            var color = Color.Black;
 
             for (int i = 0; i < Lights.Count; i++)
             {
                 var light = Lights[i];
-                color += light.Lighting(material, point, eye, normal);
+                var inShadow = IsShadowed(overPoint, light);
+                color += light.Lighting(material, point, eye, normal, inShadow);
             }
 
             return color;
@@ -97,6 +95,31 @@ namespace RayTracer.Lib
             }
 
             return canvas;
+        }
+
+        public bool IsShadowed(Point point, PointLight light)
+        {
+            var vectorToLight = light.Position - point;
+            var directionToLight = Vector.Normalize(vectorToLight);
+            
+            var rayToLight = new Ray(point, directionToLight);
+            var intersections = Intersect(rayToLight);
+
+            // Get closest intersection
+            var hit = intersections.Hit();
+            
+            // If hit occurred between point and light,
+            // then point is in shadow
+            if (hit != null)
+            {
+                var distanceToLight = vectorToLight.Length();
+                if (hit.Time < distanceToLight)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

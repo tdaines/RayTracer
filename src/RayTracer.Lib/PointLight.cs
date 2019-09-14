@@ -13,15 +13,19 @@ namespace RayTracer.Lib
             Intensity = intensity;
         }
 
-        public Color Lighting(Material material, Point point, Vector eye, Vector normal)
+        public Color Lighting(Material material, Point point, Vector eye, Vector normal, bool inShadow)
         {
             // Combine surface color with light's color and intensity
             var effectiveColor = material.Color * Intensity;
+            var ambientColor = effectiveColor * material.Ambient;
+            
+            if (inShadow)
+            {
+                return ambientColor;
+            }
             
             // Find direction to light source
             var lightVector = Vector.Normalize(Position - point);
-
-            var ambientColor = effectiveColor * material.Ambient;
             var diffuseColor = Color.Black;
             var specularColor = Color.Black;
 

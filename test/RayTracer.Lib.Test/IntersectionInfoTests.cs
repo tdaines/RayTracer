@@ -35,5 +35,17 @@ namespace RayTracer.Lib.Test
             Assert.Equal(new Vector(0, 0, -1), info.Normal);
             Assert.True(info.Inside);
         }
+
+        [Fact]
+        public void ConstructorHitOffsetsPoint()
+        {
+            var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere(Matrix4x4.Translation(0, 0, 1));
+            var intersection = new Intersection(5, sphere);
+            
+            var info = new IntersectionInfo(intersection, ray);
+            Assert.True(info.OverPoint.Z < -0.01f / 2.0f);
+            Assert.True(info.Point.Z > info.OverPoint.Z);
+        }
     }
 }

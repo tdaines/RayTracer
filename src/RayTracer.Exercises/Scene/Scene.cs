@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using RayTracer.Lib;
 
@@ -39,7 +38,9 @@ namespace RayTracer.Exercises.Scene
             var leftMaterial = new Material(new Color(1, 0.8f, 0.1f), diffuse: 0.7f, specular: 0.3f);
             var left = new Lib.Sphere(leftTransform, leftMaterial);
             
-            var light = new PointLight(new Point(-10, 10, -10), Color.White);
+            var light = new PointLight(new Point(-10, 10, -10), new Color(0.5f, 0.5f, 0.5f));
+            var light2 = new PointLight(new Point(10, 10, -10), new Color(0.2f, 0.2f, 0.2f));
+            var light3 = new PointLight(new Point(0, 10, -10), new Color(0.2f, 0.2f, 0.2f));
             
             var from = new Point(0, 1.5f, -5);
             var to = new Point(0, 1, 0);
@@ -47,7 +48,17 @@ namespace RayTracer.Exercises.Scene
             var cameraTransform = ViewTransform.Create(from, to, up);
             var camera = new Camera(400, 200, MathF.PI / 3, cameraTransform);
             
-            var world = new World(light, new List<Shape> { floor, leftWall, rightWall, middle, right, left });
+            var world = new World();
+            world.Lights.Add(light);
+            world.Lights.Add(light2);
+            world.Lights.Add(light3);
+            world.Shapes.Add(floor);
+            world.Shapes.Add(leftWall);
+            world.Shapes.Add(rightWall);
+            world.Shapes.Add(middle);
+            world.Shapes.Add(right);
+            world.Shapes.Add(left);
+            
             var canvas = world.Render(camera);
             
             File.WriteAllLines("scene.ppm", canvas.GetPortablePixmap());
