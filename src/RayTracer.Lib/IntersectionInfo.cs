@@ -9,12 +9,14 @@ namespace RayTracer.Lib
         public Vector Normal { get; }
         public bool Inside { get; }
 
+        private const float EPSILON = 0.005f;
+
         public IntersectionInfo(Intersection intersection, Ray ray)
         {
             Intersection = intersection;
             Point = ray.Position(intersection.Time);
             EyeVector = -ray.Direction;
-            Normal = intersection.Object.Normal(Point);
+            Normal = intersection.Shape.Normal(Point);
             Inside = false;
 
             if (Vector.Dot(Normal, EyeVector) < 0)
@@ -23,7 +25,7 @@ namespace RayTracer.Lib
                 Normal = -Normal;
             }
 
-            OverPoint = Point + Normal * 0.01f;
+            OverPoint = Point + Normal * EPSILON;
         }
     }
 }

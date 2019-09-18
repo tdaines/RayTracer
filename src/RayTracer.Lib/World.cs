@@ -38,7 +38,7 @@ namespace RayTracer.Lib
 
             for (int i = 0; i < Shapes.Count; i++)
             {
-                var intersections = ray.Intersect((Sphere)Shapes[i]);
+                var intersections = Shapes[i].Intersect(ray);
                 allIntersections.AddRange(intersections.Where(xs => xs.Time >= 0));
             }
             
@@ -47,7 +47,7 @@ namespace RayTracer.Lib
 
         public Color ShadeHit(IntersectionInfo intersectionInfo)
         {
-            var material = intersectionInfo.Intersection.Object.Material;
+            var material = intersectionInfo.Intersection.Shape.Material;
             var point = intersectionInfo.Point;
             var eye = intersectionInfo.EyeVector;
             var normal = intersectionInfo.Normal;

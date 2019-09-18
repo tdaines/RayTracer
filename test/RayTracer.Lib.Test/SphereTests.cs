@@ -53,5 +53,96 @@ namespace RayTracer.Lib.Test
             
             Assert.Equal(new Vector(0, 0.97014f, -0.24254f), normal);
         }
+        
+        [Fact]
+        public void Intersect()
+        {
+            var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere();
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Equal(2, intersections.Count);
+            Assert.Equal(4.0f, intersections[0].Time);
+            Assert.Equal(sphere, intersections[0].Shape);
+            Assert.Equal(6.0f, intersections[1].Time);
+            Assert.Equal(sphere, intersections[1].Shape);
+        }
+        
+        [Fact]
+        public void IntersectTangent()
+        {
+            var ray = new Ray(new Point(0, 1, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere();
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Equal(2, intersections.Count);
+            Assert.Equal(5.0f, intersections[0].Time);
+            Assert.Equal(sphere, intersections[0].Shape);
+            Assert.Equal(5.0f, intersections[1].Time);
+            Assert.Equal(sphere, intersections[1].Shape);
+        }
+        
+        [Fact]
+        public void IntersectMiss()
+        {
+            var ray = new Ray(new Point(0, 2, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere();
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Empty(intersections);
+        }
+        
+        [Fact]
+        public void IntersectFromInside()
+        {
+            var ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
+            var sphere = new Sphere();
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Equal(2, intersections.Count);
+            Assert.Equal(-1.0f, intersections[0].Time);
+            Assert.Equal(sphere, intersections[0].Shape);
+            Assert.Equal(1.0f, intersections[1].Time);
+            Assert.Equal(sphere, intersections[1].Shape);
+        }
+        
+        [Fact]
+        public void IntersectFromBehind()
+        {
+            var ray = new Ray(new Point(0, 0, 5), new Vector(0, 0, 1));
+            var sphere = new Sphere();
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Equal(2, intersections.Count);
+            Assert.Equal(-6.0f, intersections[0].Time);
+            Assert.Equal(sphere, intersections[0].Shape);
+            Assert.Equal(-4.0f, intersections[1].Time);
+            Assert.Equal(sphere, intersections[1].Shape);
+        }
+        
+        [Fact]
+        public void IntersectScaled()
+        {
+            var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere(Matrix4x4.Scaling(2, 2, 2));
+
+            var intersections = sphere.Intersect(ray);
+            
+            Assert.Equal(2, intersections.Count);
+            Assert.Equal(3, intersections[0].Time);
+            Assert.Equal(sphere, intersections[0].Shape);
+            Assert.Equal(7, intersections[1].Time);
+            Assert.Equal(sphere, intersections[1].Shape);
+        }
+        
+        [Fact]
+        public void IntersectTranslated()
+        {
+            var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
+            var sphere = new Sphere(Matrix4x4.Translation(5, 0, 0));
+
+            var intersections = sphere.Intersect(ray);
+            Assert.Empty(intersections);
+        }
     }
 }

@@ -35,7 +35,7 @@ namespace RayTracer.Exercises.SphereSilhouette
                     // Ray pointing at position on wall, from origin
                     var ray = new Ray(rayOrigin, direction);
 
-                    var intersections = ray.Intersect(sphere);
+                    var intersections = sphere.Intersect(ray);
                     var intersection = intersections.Hit();
 
                     if (intersection != null)

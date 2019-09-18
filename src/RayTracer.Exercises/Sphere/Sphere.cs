@@ -38,16 +38,16 @@ namespace RayTracer.Exercises.Sphere
                     // Ray pointing at position on wall, from origin
                     var ray = new Ray(rayOrigin, direction);
 
-                    var intersections = ray.Intersect(sphere);
+                    var intersections = sphere.Intersect(ray);
                     var intersection = intersections.Hit();
 
                     if (intersection != null)
                     {
                         var point = ray.Position(intersection.Time);
-                        var normal = intersection.Object.Normal(point);
+                        var normal = intersection.Shape.Normal(point);
                         var eyeVector = -ray.Direction;
 
-                        var color = light.Lighting(intersection.Object.Material, point, eyeVector, normal, false);
+                        var color = light.Lighting(intersection.Shape.Material, point, eyeVector, normal, false);
                         
                         canvas[x, y] = color;
                     }

@@ -31,7 +31,6 @@ namespace RayTracer.Lib
             var x = left.X - right.X;
             var y = left.Y - right.Y;
             var z = left.Z - right.Z;
-            var w = left.W - right.W;
             
             return new Point(x, y, z);
         }

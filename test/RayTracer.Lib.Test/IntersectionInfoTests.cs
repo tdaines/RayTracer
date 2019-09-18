@@ -13,7 +13,7 @@ namespace RayTracer.Lib.Test
             
             var info = new IntersectionInfo(intersection, ray);
             Assert.Equal(4, info.Intersection.Time);
-            Assert.Equal(sphere, info.Intersection.Object);
+            Assert.Equal(sphere, info.Intersection.Shape);
             Assert.Equal(new Point(0, 0, -1), info.Point);
             Assert.Equal(new Vector(0, 0, -1), info.EyeVector);
             Assert.Equal(new Vector(0, 0, -1), info.Normal);
@@ -29,7 +29,7 @@ namespace RayTracer.Lib.Test
             
             var info = new IntersectionInfo(intersection, ray);
             Assert.Equal(1, info.Intersection.Time);
-            Assert.Equal(sphere, info.Intersection.Object);
+            Assert.Equal(sphere, info.Intersection.Shape);
             Assert.Equal(new Point(0, 0, 1), info.Point);
             Assert.Equal(new Vector(0, 0, -1), info.EyeVector);
             Assert.Equal(new Vector(0, 0, -1), info.Normal);

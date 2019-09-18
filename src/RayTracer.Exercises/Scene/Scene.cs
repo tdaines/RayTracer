@@ -8,14 +8,17 @@ namespace RayTracer.Exercises.Scene
     {
         public static void Run()
         {
-            var floorTransform = Matrix4x4.Scaling(10, 0.01f, 10);
             var floorMaterial = new Material(new Color(1, 0.9f, 0.9f), specular: 0);
-            var floor = new Lib.Sphere(floorTransform, floorMaterial);
+            var floor = new Plane(floorMaterial);
 
-            var leftWallTransform = Matrix4x4.Translation(0, 0, 5) *
-                                    Matrix4x4.RotationY(-MathF.PI / 4) *
-                                    Matrix4x4.RotationX(MathF.PI / 2) *
-                                    Matrix4x4.Scaling(10, 0.01f, 10);
+            var leftWallTransform = Matrix4x4.Translation(0, 0, 3) *
+                                    Matrix4x4.RotationX(MathF.PI / 2);
+            var wall = new Plane(leftWallTransform, floorMaterial); 
+            
+//            var leftWallTransform = Matrix4x4.Translation(0, 0, 5) *
+//                                    Matrix4x4.RotationY(-MathF.PI / 4) *
+//                                    Matrix4x4.RotationX(MathF.PI / 2) *
+//                                    Matrix4x4.Scaling(10, 0.01f, 10);
             var leftWall = new Lib.Sphere(leftWallTransform, floorMaterial);
             
             var rightWallTransform = Matrix4x4.Translation(0, 0, 5) *
@@ -53,8 +56,9 @@ namespace RayTracer.Exercises.Scene
             world.Lights.Add(light2);
             world.Lights.Add(light3);
             world.Shapes.Add(floor);
-            world.Shapes.Add(leftWall);
-            world.Shapes.Add(rightWall);
+            world.Shapes.Add(wall);
+//            world.Shapes.Add(leftWall);
+//            world.Shapes.Add(rightWall);
             world.Shapes.Add(middle);
             world.Shapes.Add(right);
             world.Shapes.Add(left);

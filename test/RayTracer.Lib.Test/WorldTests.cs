@@ -98,7 +98,7 @@ namespace RayTracer.Lib.Test
         public void ColorAtIntersectionBehindRay()
         {
             var world = World.DefaultWorld();
-            var outer = world.Shapes[0] = new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f, ambient: 1));
+            world.Shapes[0] = new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f, ambient: 1));
             var inner = world.Shapes[1] = new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), new Material(ambient: 1));
             var ray = new Ray(new Point(0, 0, 0.75f), new Vector(0, 0, -1));
             
