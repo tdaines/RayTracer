@@ -9,7 +9,7 @@ namespace RayTracer.Lib
         public Vector Normal { get; }
         public bool Inside { get; }
 
-        private const float EPSILON = 0.005f;
+        private const float EPSILON = 0.01f;
 
         public IntersectionInfo(Intersection intersection, Ray ray)
         {
