@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using RayTracer.Lib.Patterns;
 
 namespace RayTracer.Lib
 {
@@ -48,6 +49,7 @@ namespace RayTracer.Lib
         public Color ShadeHit(IntersectionInfo intersectionInfo)
         {
             var material = intersectionInfo.Intersection.Shape.Material;
+            var shape = intersectionInfo.Intersection.Shape;
             var point = intersectionInfo.Point;
             var eye = intersectionInfo.EyeVector;
             var normal = intersectionInfo.Normal;
@@ -59,7 +61,7 @@ namespace RayTracer.Lib
             {
                 var light = Lights[i];
                 var inShadow = IsShadowed(overPoint, light);
-                color += light.Lighting(material, point, eye, normal, inShadow);
+                color += light.Lighting(material, shape, overPoint, eye, normal, inShadow);
             }
 
             return color;

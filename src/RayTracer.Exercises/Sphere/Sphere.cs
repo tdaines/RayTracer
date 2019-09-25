@@ -1,5 +1,6 @@
 using System.IO;
 using RayTracer.Lib;
+using RayTracer.Lib.Patterns;
 
 namespace RayTracer.Exercises.Sphere
 {
@@ -47,7 +48,7 @@ namespace RayTracer.Exercises.Sphere
                         var normal = intersection.Shape.Normal(point);
                         var eyeVector = -ray.Direction;
 
-                        var color = light.Lighting(intersection.Shape.Material, point, eyeVector, normal, false);
+                        var color = light.Lighting(intersection.Shape.Material, intersection.Shape, point, eyeVector, normal, false);
                         
                         canvas[x, y] = color;
                     }

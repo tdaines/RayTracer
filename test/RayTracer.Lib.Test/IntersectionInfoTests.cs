@@ -44,7 +44,7 @@ namespace RayTracer.Lib.Test
             var intersection = new Intersection(5, sphere);
             
             var info = new IntersectionInfo(intersection, ray);
-            Assert.True(info.OverPoint.Z < -0.01f / 2.0f);
+            Assert.True(info.OverPoint.Z < -0.0001f);
             Assert.True(info.Point.Z > info.OverPoint.Z);
         }
     }

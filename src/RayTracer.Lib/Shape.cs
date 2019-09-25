@@ -3,7 +3,7 @@ namespace RayTracer.Lib
     public abstract class Shape
     {
         public Matrix4x4 Transform { get; }
-        protected Matrix4x4 InverseTransform { get; }
+        public Matrix4x4 InverseTransform { get; }
         private Matrix4x4 TransposedInverseTransform { get; }
         public Material Material { get; }
 

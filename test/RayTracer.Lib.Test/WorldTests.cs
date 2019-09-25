@@ -1,4 +1,5 @@
 using System;
+using RayTracer.Lib.Patterns;
 using Xunit;
 
 namespace RayTracer.Lib.Test
@@ -14,7 +15,7 @@ namespace RayTracer.Lib.Test
             Assert.Equal(Color.White, world.Lights[0].Intensity);
 
             var sphere = world.Shapes[0];
-            Assert.Equal(new Color(0.8f, 1.0f, 0.6f), sphere.Material.Color);
+            Assert.Equal(new Color(0.8f, 1.0f, 0.6f), ((SolidPattern)sphere.Material.Pattern).Color);
             Assert.Equal(0.7f, sphere.Material.Diffuse);
             Assert.Equal(0.2f, sphere.Material.Specular);
             
@@ -58,7 +59,7 @@ namespace RayTracer.Lib.Test
             var intersection = new Intersection(0.5f, shape);
             var intersectionInfo = new IntersectionInfo(intersection, ray);
             
-            Assert.Equal(new Color(0.90498f, 0.90498f, 0.90498f), world.ShadeHit(intersectionInfo));
+            Assert.Equal(new Color(0.9046617f, 0.9046617f, 0.9046617f), world.ShadeHit(intersectionInfo));
         }
 
         [Fact]
@@ -102,7 +103,7 @@ namespace RayTracer.Lib.Test
             var inner = world.Shapes[1] = new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), new Material(ambient: 1));
             var ray = new Ray(new Point(0, 0, 0.75f), new Vector(0, 0, -1));
             
-            Assert.Equal(inner.Material.Color, world.ColorAt(ray));
+            Assert.Equal(((SolidPattern)inner.Material.Pattern).Color, world.ColorAt(ray));
         }
 
         [Fact]

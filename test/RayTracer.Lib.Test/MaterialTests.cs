@@ -1,3 +1,4 @@
+using RayTracer.Lib.Patterns;
 using Xunit;
 
 namespace RayTracer.Lib.Test
@@ -9,7 +10,7 @@ namespace RayTracer.Lib.Test
         {
             var material = new Material();
             
-            Assert.Equal(Color.White, material.Color);
+            Assert.Equal(SolidPattern.White.Color, ((SolidPattern)material.Pattern).Color);
             Assert.Equal(0.1f, material.Ambient);
             Assert.Equal(0.9f, material.Diffuse);
             Assert.Equal(0.9f, material.Specular);
