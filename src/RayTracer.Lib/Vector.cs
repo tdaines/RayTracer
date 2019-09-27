@@ -127,5 +127,9 @@ namespace RayTracer.Lib
         {
             return $"Vector({X}, {Y}, {Z}, {W})";
         }
+        
+        public static Vector UnitX = new Vector(1, 0, 0);
+        public static Vector UnitY = new Vector(0, 1, 0);
+        public static Vector UnitZ = new Vector(0, 0, 1);
     }
 }

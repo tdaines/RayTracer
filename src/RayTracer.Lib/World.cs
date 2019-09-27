@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using RayTracer.Lib.Patterns;
 
 namespace RayTracer.Lib
 {
@@ -46,7 +45,7 @@ namespace RayTracer.Lib
             return new Intersections(allIntersections);
         }
 
-        public Color ShadeHit(IntersectionInfo intersectionInfo)
+        public Color ShadeHit(IntersectionInfo intersectionInfo, int remaining)
         {
             var material = intersectionInfo.Intersection.Shape.Material;
             var shape = intersectionInfo.Intersection.Shape;
@@ -61,13 +60,15 @@ namespace RayTracer.Lib
             {
                 var light = Lights[i];
                 var inShadow = IsShadowed(overPoint, light);
-                color += light.Lighting(material, shape, overPoint, eye, normal, inShadow);
+
+                color += light.Lighting(material, shape, point, eye, normal, inShadow);
+                color += ReflectedColor(intersectionInfo, remaining);
             }
 
             return color;
         }
 
-        public Color ColorAt(Ray ray)
+        public Color ColorAt(Ray ray, int remaining)
         {
             var intersections = Intersect(ray);
             var intersection = intersections.Hit();
@@ -77,12 +78,12 @@ namespace RayTracer.Lib
                 return Color.Black;
             }
             
-            var intersectionInfo = new IntersectionInfo(intersection, ray);
+            var intersectionInfo = new IntersectionInfo(intersections, intersection, ray);
 
-            return ShadeHit(intersectionInfo);
+            return ShadeHit(intersectionInfo, remaining);
         }
 
-        public Canvas Render(Camera camera)
+        public Canvas Render(Camera camera, int recursiveDepth = 5)
         {
             var canvas = new Canvas(camera.Width, camera.Height);
 
@@ -91,7 +92,7 @@ namespace RayTracer.Lib
                 for (int x = 0; x < camera.Width; x++)
                 {
                     var ray = camera.RayForPixel(x, y);
-                    var color = ColorAt(ray);
+                    var color = ColorAt(ray, recursiveDepth);
                     canvas[x, y] = color;
                 }
             }
@@ -122,6 +123,26 @@ namespace RayTracer.Lib
             }
 
             return false;
+        }
+
+        public Color ReflectedColor(IntersectionInfo info, int remaining)
+        {
+            if (remaining < 1)
+            {
+                return Color.Black;
+            }
+            
+            var reflective = info.Intersection.Shape.Material.Reflective;
+            
+            if (reflective.ApproximatelyEquals(0))
+            {
+                return Color.Black;
+            }
+            
+            var reflectedRay = new Ray(info.OverPoint, info.ReflectVector);
+            var color = ColorAt(reflectedRay, remaining - 1);
+
+            return color * reflective;
         }
     }
 }

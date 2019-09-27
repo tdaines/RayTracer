@@ -1,9 +1,9 @@
 namespace RayTracer.Lib
 {
-    public class Ray
+    public struct Ray
     {
         public Point Origin { get; }
-        public Vector Direction { get; private set; }
+        public Vector Direction { get; }
 
         public Ray(Point origin, Vector direction)
         {

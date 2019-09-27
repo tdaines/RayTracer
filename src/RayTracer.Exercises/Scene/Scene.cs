@@ -12,7 +12,7 @@ namespace RayTracer.Exercises.Scene
 //            JustFloor();
 //            return;
             
-            var floorMaterial = new Material(new Color(1, 0.9f, 0.9f), specular: 0);
+            var floorMaterial = new Material(new Color(1, 0.9f, 0.9f), specular: 0, shininess: 200, reflective: 0.1f);
             floorMaterial.Pattern = new CheckeredPattern(Matrix4x4.Scaling(1, 1, 1),
                 new GradientPattern(Matrix4x4.RotationZ(MathF.PI / 2) * Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)), 
                 new StripePattern(Matrix4x4.RotationX(MathF.PI / 2) * Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), SolidPattern.Blue, SolidPattern.Red));
@@ -40,15 +40,15 @@ namespace RayTracer.Exercises.Scene
             var rightWall = new Lib.Sphere(rightWallTransform, floorMaterial);
             
             var middleTransform = Matrix4x4.Translation(-0.5f, 1, 0.5f);
-            var middleMaterial = new Material(new Color(0.1f, 1, 0.5f), diffuse: 0.7f, specular: 0.3f);
-            middleMaterial.Pattern = new BlendedPattern(Matrix4x4.Scaling(0.25f, 0.25f, 0.25f),
-                new StripePattern(SolidPattern.Green, SolidPattern.White),
-                new StripePattern(Matrix4x4.RotationY(MathF.PI / 4.0f), SolidPattern.Green, SolidPattern.White));
+            var middleMaterial = new Material(new Color(0.1f, 1, 0.5f), diffuse: 0.7f, specular: 0.3f, reflective: 1);
+//            middleMaterial.Pattern = new BlendedPattern(Matrix4x4.Scaling(0.25f, 0.25f, 0.25f),
+//                new StripePattern(SolidPattern.Green, SolidPattern.White),
+//                new StripePattern(Matrix4x4.RotationY(MathF.PI / 4.0f), SolidPattern.Green, SolidPattern.White));
             var middle = new Lib.Sphere(middleTransform, middleMaterial);
             
             var rightTransform = Matrix4x4.Translation(1.5f, 0.5f, -0.5f) *
                                  Matrix4x4.Scaling(0.5f, 0.5f, 0.5f);
-            var rightMaterial = new Material(new Color(0.5f, 1, 0.1f), diffuse: 0.7f, specular: 0.3f);
+            var rightMaterial = new Material(new Color(0.5f, 1, 0.1f), diffuse: 0.7f, specular: 1.3f, shininess: 200);
             rightMaterial.Pattern = new GradientPattern(Matrix4x4.Translation(5, 0, 0) *
                                                         Matrix4x4.Scaling(2, 2, 2), Color.Red, Color.Blue);
             var right = new Lib.Sphere(rightTransform, rightMaterial);
