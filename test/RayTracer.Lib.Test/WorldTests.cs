@@ -59,7 +59,7 @@ namespace RayTracer.Lib.Test
             var intersection = new Intersection(0.5f, shape);
             var intersectionInfo = new IntersectionInfo(new Intersections(intersection), intersection, ray);
             
-            Assert.Equal(new Color(0.9046617f, 0.9046617f, 0.9046617f), world.ShadeHit(intersectionInfo, 0));
+            Assert.Equal(new Color(0.9049845f, 0.9049845f, 0.9049845f), world.ShadeHit(intersectionInfo, 0));
         }
 
         [Fact]
