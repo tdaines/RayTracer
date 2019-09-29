@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace RayTracer.Lib
@@ -81,6 +82,30 @@ namespace RayTracer.Lib
                     break;
                 }
             }
+        }
+
+        public float Reflectance()
+        {
+            // Use Schlick approximation
+            
+            // Find the cosine of the angle between the eye and normal vectors
+            float cos = Vector.Dot(EyeVector, Normal);
+            
+            // Total internal reflection can only occur if n1 > n2
+            if (RefractiveIndex1 > RefractiveIndex2)
+            {
+                var ratio = RefractiveIndex1 / RefractiveIndex2;
+                var sin2T = (ratio * ratio) * (1 - (cos * cos));
+                if (sin2T > 1)
+                {
+                    return 1;
+                }
+
+                cos = MathF.Sqrt(1 - sin2T);
+            }
+
+            var r0 = MathF.Pow((RefractiveIndex1 - RefractiveIndex2) / (RefractiveIndex1 + RefractiveIndex2), 2);
+            return r0 + (1 - r0) * MathF.Pow(1 - cos, 5);
         }
     }
 }

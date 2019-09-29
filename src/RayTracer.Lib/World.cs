@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -59,7 +60,6 @@ namespace RayTracer.Lib
         {
             var material = intersectionInfo.Intersection.Shape.Material;
             var shape = intersectionInfo.Intersection.Shape;
-            var point = intersectionInfo.Point;
             var eye = intersectionInfo.EyeVector;
             var normal = intersectionInfo.Normal;
             var overPoint = intersectionInfo.OverPoint;
@@ -71,8 +71,21 @@ namespace RayTracer.Lib
                 var light = Lights[i];
                 var inShadow = IsShadowed(overPoint, light);
 
-                color += light.Lighting(material, shape, overPoint, eye, normal, inShadow);
-                color += ReflectedColor(intersectionInfo, remaining);
+                var surfaceColor = light.Lighting(material, shape, overPoint, eye, normal, inShadow);
+                var reflectedColor = ReflectedColor(intersectionInfo, remaining);
+                var refractedColor = RefractedColor(intersectionInfo, remaining);
+
+                if (material.Reflective > 0 && material.Transparency > 0)
+                {
+                    var reflectance = intersectionInfo.Reflectance();
+                    color += surfaceColor 
+                           + reflectedColor * reflectance
+                           + refractedColor * (1- reflectance);
+                }
+                else
+                {
+                    color += surfaceColor + reflectedColor + refractedColor;
+                }
             }
 
             return color;
@@ -155,9 +168,44 @@ namespace RayTracer.Lib
             return color * reflective;
         }
 
-        public Color RefractedColor(IntersectionInfo info, int remainging)
+        public Color RefractedColor(IntersectionInfo info, int remaining)
         {
-            return Color.Black;
+            if (remaining < 1)
+            {
+                return Color.Black;
+            }
+            
+            float materialTransparency = info.Intersection.Shape.Material.Transparency;
+            if (materialTransparency.ApproximatelyEquals(0))
+            {
+                return Color.Black;
+            }
+            
+            // Find the ratio of the first index of refraction to the second
+            float ratio = info.RefractiveIndex1 / info.RefractiveIndex2;
+
+            // Theta_i is the angle of the incoming ray
+            // Cos(Theta_i) is the same as the dot product of the two vectors
+            float cosineI = Vector.Dot(info.EyeVector, info.Normal);
+            
+            // Theta_t is the angle of the refracted ray
+            // Find Sin(Theta_t)^2
+            float sin2T = (ratio * ratio) * (1 - (cosineI * cosineI));
+
+            if (sin2T > 1)
+            {
+                // Total internal reflection
+                return Color.Black;
+            }
+
+            float cosineT = MathF.Sqrt(1 - sin2T);
+            
+            // Compute direction of the refracted ray
+            var direction = info.Normal * (ratio * cosineI - cosineT) - info.EyeVector * ratio;
+            
+            var refractedRay = new Ray(info.UnderPoint, direction);
+
+            return ColorAt(refractedRay, remaining - 1) * materialTransparency;
         }
     }
 }

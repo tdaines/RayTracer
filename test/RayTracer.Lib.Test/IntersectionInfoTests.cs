@@ -109,5 +109,42 @@ namespace RayTracer.Lib.Test
             Assert.True(info.UnderPoint.Z > 0.0001f / 2);
             Assert.True(info.Point.Z < info.UnderPoint.Z);
         }
+
+        [Fact]
+        public void ReflectanceTotalInternalReflection()
+        {
+            var sphere = new Sphere(Material.Glass());
+            var ray = new Ray(new Point(0, 0, MathF.Sqrt(2) / 2), Vector.UnitY);
+            var intersections = new Intersections(
+                new Intersection(-MathF.Sqrt(2) / 2, sphere),
+                new Intersection(MathF.Sqrt(2) / 2, sphere));
+            var info = new IntersectionInfo(intersections, intersections[1], ray);
+            
+            Assert.Equal(1, info.Reflectance());
+        }
+        
+        [Fact]
+        public void ReflectancePerpendicular()
+        {
+            var sphere = new Sphere(Material.Glass());
+            var ray = new Ray(new Point(0, 0, 0), Vector.UnitY);
+            var intersections = new Intersections(
+                new Intersection(-1, sphere),
+                new Intersection(1, sphere));
+            var info = new IntersectionInfo(intersections, intersections[1], ray);
+            
+            Assert.Equal(0.040000003f, info.Reflectance());
+        }
+        
+        [Fact]
+        public void ReflectanceSmallAngle()
+        {
+            var sphere = new Sphere(Material.Glass());
+            var ray = new Ray(new Point(0, 0.99f, -2), Vector.UnitZ);
+            var intersections = new Intersections(new Intersection(1.8589f, sphere));
+            var info = new IntersectionInfo(intersections, intersections[0], ray);
+            
+            Assert.Equal(0.4887307f, info.Reflectance());
+        }
     }
 }

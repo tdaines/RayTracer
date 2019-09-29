@@ -1,5 +1,6 @@
 using System;
 using RayTracer.Lib.Patterns;
+using RayTracer.Lib.Test.Patterns;
 using Xunit;
 
 namespace RayTracer.Lib.Test
@@ -256,8 +257,108 @@ namespace RayTracer.Lib.Test
             var intersections = new Intersections(new Intersection(4, sphere), new Intersection(6, sphere));
             var info = new IntersectionInfo(intersections, intersections[0], ray);
 
+            var actual = world.RefractedColor(info, 5);
+            Assert.Equal(Color.Black, actual);
+        }
+        
+        [Fact]
+        public void RefractedColorMaxRecursiveDepth()
+        {
+            var world = World.DefaultWorld();
+            var sphere = world.Shapes[0];
+            sphere.Material.Transparency = 1;
+            sphere.Material.RefractiveIndex = 1.5f;
+            
+            var ray = new Ray(new Point(0, 0, -5), Vector.UnitZ);
+            var intersections = new Intersections(new Intersection(4, sphere), new Intersection(6, sphere));
+            var info = new IntersectionInfo(intersections, intersections[0], ray);
+
             var actual = world.RefractedColor(info, 0);
             Assert.Equal(Color.Black, actual);
+        }
+        
+        [Fact]
+        public void RefractedColorTotalInternalReflection()
+        {
+            var world = World.DefaultWorld();
+            var sphere = world.Shapes[0];
+            sphere.Material.Transparency = 1;
+            sphere.Material.RefractiveIndex = 1.5f;
+            
+            var ray = new Ray(new Point(0, 0, MathF.Sqrt(2) / 2), Vector.UnitY);
+            var intersections = new Intersections(new Intersection(-MathF.Sqrt(2) / 2, sphere), new Intersection(MathF.Sqrt(2) / 2, sphere));
+            var info = new IntersectionInfo(intersections, intersections[1], ray);
+
+            var actual = world.RefractedColor(info, 5);
+            Assert.Equal(Color.Black, actual);
+        }
+        
+        [Fact]
+        public void RefractedColor()
+        {
+            var world = World.DefaultWorld();
+            var sphereA = world.Shapes[0];
+            sphereA.Material.Ambient = 1;
+            sphereA.Material.Pattern = new TestPattern();
+
+            var sphereB = world.Shapes[1];
+            sphereB.Material.Transparency = 1;
+            sphereB.Material.RefractiveIndex = 1.5f;
+            
+            var ray = new Ray(new Point(0, 0, 0.1f), Vector.UnitY);
+            var intersections = new Intersections(
+                new Intersection(-0.9899f, sphereA),
+                new Intersection(-0.4899f, sphereB),
+                new Intersection(0.4899f, sphereB),
+                new Intersection(0.9899f, sphereA));
+            var info = new IntersectionInfo(intersections, intersections[2], ray);
+
+            var actual = world.RefractedColor(info, 5);
+            Assert.Equal(new Color(0, 0.9978715f, 0.047472f), actual);
+        }
+        
+        [Fact]
+        public void ShadeHitTransparentMaterial()
+        {
+            var floor = new Plane(
+                Matrix4x4.Translation(0, -1, 0),
+                new Material(transparency: 0.5f, refractiveIndex: 1.5f));
+            var ball = new Sphere(
+                Matrix4x4.Translation(0, -3.5f, -0.5f),
+                new Material(Color.Red, ambient: 0.5f));
+            
+            var world = World.DefaultWorld();
+            world.Add(floor);
+            world.Add(ball);
+            
+            var ray = new Ray(new Point(0, 0, -3), new Vector(0, -MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2));
+            var intersection = new Intersection(MathF.Sqrt(2), floor);
+            var info = new IntersectionInfo(new Intersections(intersection), intersection, ray);
+
+            var actual = world.ShadeHit(info, 5);
+            Assert.Equal(new Color(0.93642f, 0.68642f, 0.68642f), actual);
+        }
+        
+        [Fact]
+        public void ShadeHitReflectiveAndTransparentMaterial()
+        {
+            var floor = new Plane(
+                Matrix4x4.Translation(0, -1, 0),
+                new Material(transparency: 0.5f, refractiveIndex: 1.5f, reflective: 0.5f));
+            var ball = new Sphere(
+                Matrix4x4.Translation(0, -3.5f, -0.5f),
+                new Material(Color.Red, ambient: 0.5f));
+            
+            var world = World.DefaultWorld();
+            world.Add(floor);
+            world.Add(ball);
+            
+            var ray = new Ray(new Point(0, 0, -3), new Vector(0, -MathF.Sqrt(2) / 2, MathF.Sqrt(2) / 2));
+            var intersection = new Intersection(MathF.Sqrt(2), floor);
+            var info = new IntersectionInfo(new Intersections(intersection), intersection, ray);
+
+            var actual = world.ShadeHit(info, 5);
+            Assert.Equal(new Color(0.93391f, 0.69643f, 0.69243f), actual);
         }
     }
 }
