@@ -59,7 +59,7 @@ namespace RayTracer.Lib.Test
             var intersection = new Intersection(0.5f, shape);
             var intersectionInfo = new IntersectionInfo(new Intersections(intersection), intersection, ray);
             
-            Assert.Equal(new Color(0.9049845f, 0.9049845f, 0.9049845f), world.ShadeHit(intersectionInfo, 0));
+            Assert.Equal(new Color(0.9046617f, 0.9046617f, 0.9046617f), world.ShadeHit(intersectionInfo, 0));
         }
 
         [Fact]
@@ -244,6 +244,19 @@ namespace RayTracer.Lib.Test
             var info = new IntersectionInfo(new Intersections(intersection), intersection, ray);
 
             var actual = world.ReflectedColor(info, 0);
+            Assert.Equal(Color.Black, actual);
+        }
+
+        [Fact]
+        public void RefractedColorOpaqueSurface()
+        {
+            var world = World.DefaultWorld();
+            var sphere = world.Shapes[0];
+            var ray = new Ray(new Point(0, 0, -5), Vector.UnitZ);
+            var intersections = new Intersections(new Intersection(4, sphere), new Intersection(6, sphere));
+            var info = new IntersectionInfo(intersections, intersections[0], ray);
+
+            var actual = world.RefractedColor(info, 0);
             Assert.Equal(Color.Black, actual);
         }
     }

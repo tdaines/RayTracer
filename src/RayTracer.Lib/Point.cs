@@ -70,7 +70,7 @@ namespace RayTracer.Lib
 
         public override string ToString()
         {
-            return $"Point({X}, {Y}, {Z}, {W})";
+            return $"Point({X}, {Y}, {Z})";
         }
         
         public static Point Zero => new Point(0, 0, 0);

@@ -125,7 +125,7 @@ namespace RayTracer.Lib
 
         public override string ToString()
         {
-            return $"Vector({X}, {Y}, {Z}, {W})";
+            return $"Vector({X}, {Y}, {Z})";
         }
         
         public static Vector UnitX = new Vector(1, 0, 0);

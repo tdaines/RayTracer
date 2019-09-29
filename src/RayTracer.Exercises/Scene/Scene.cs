@@ -9,8 +9,8 @@ namespace RayTracer.Exercises.Scene
     {
         public static void Run()
         {
-//            JustFloor();
-//            return;
+            JustFloor();
+            return;
             
             var floorMaterial = new Material(new Color(1, 0.9f, 0.9f), specular: 0, shininess: 200, reflective: 0.1f);
             floorMaterial.Pattern = new CheckeredPattern(Matrix4x4.Scaling(1, 1, 1),
@@ -40,7 +40,7 @@ namespace RayTracer.Exercises.Scene
             var rightWall = new Lib.Sphere(rightWallTransform, floorMaterial);
             
             var middleTransform = Matrix4x4.Translation(-0.5f, 1, 0.5f);
-            var middleMaterial = new Material(new Color(0.1f, 1, 0.5f), diffuse: 0.7f, specular: 0.3f, reflective: 1);
+            var middleMaterial = new Material(Color.Black, diffuse: 0.7f, specular: 0.3f, reflective: 1);
 //            middleMaterial.Pattern = new BlendedPattern(Matrix4x4.Scaling(0.25f, 0.25f, 0.25f),
 //                new StripePattern(SolidPattern.Green, SolidPattern.White),
 //                new StripePattern(Matrix4x4.RotationY(MathF.PI / 4.0f), SolidPattern.Green, SolidPattern.White));
@@ -118,6 +118,12 @@ namespace RayTracer.Exercises.Scene
 //            floorMaterial.Pattern = new StripePattern(Matrix4x4.RotationY(MathF.PI / 2.0f), SolidPattern.Green, SolidPattern.White);
             
             var floor = new Plane(floorMaterial);
+
+            var sphere = new Lib.Sphere(Matrix4x4.Translation(0, 1, 0), Material.Mirror());
+            
+            var smallSphere = new Lib.Sphere(
+                Matrix4x4.Translation(2, 1, -1) * Matrix4x4.Scaling(0.5f, 0.5f, 0.5f),
+                new Material(Color.Blue));
             
             var light = new PointLight(new Point(-10, 10, -10), new Color(0.5f, 0.5f, 0.5f));
 //            var light2 = new PointLight(new Point(10, 10, -10), new Color(0.2f, 0.2f, 0.2f));
@@ -131,6 +137,8 @@ namespace RayTracer.Exercises.Scene
             
             var world = new World();
             world.Lights.Add(light);
+            world.Shapes.Add(sphere);
+            world.Shapes.Add(smallSphere);
 //            world.Lights.Add(light2);
 //            world.Lights.Add(light3);
             world.Shapes.Add(floor);

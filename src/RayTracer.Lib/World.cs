@@ -32,6 +32,16 @@ namespace RayTracer.Lib
             return world;
         }
 
+        public void Add(PointLight light)
+        {
+            Lights.Add(light);
+        }
+
+        public void Add(Shape shape)
+        {
+            Shapes.Add(shape);
+        }
+
         public Intersections Intersect(Ray ray)
         {
             List<Intersection> allIntersections = new List<Intersection>();
@@ -61,7 +71,7 @@ namespace RayTracer.Lib
                 var light = Lights[i];
                 var inShadow = IsShadowed(overPoint, light);
 
-                color += light.Lighting(material, shape, point, eye, normal, inShadow);
+                color += light.Lighting(material, shape, overPoint, eye, normal, inShadow);
                 color += ReflectedColor(intersectionInfo, remaining);
             }
 
@@ -143,6 +153,11 @@ namespace RayTracer.Lib
             var color = ColorAt(reflectedRay, remaining - 1);
 
             return color * reflective;
+        }
+
+        public Color RefractedColor(IntersectionInfo info, int remainging)
+        {
+            return Color.Black;
         }
     }
 }

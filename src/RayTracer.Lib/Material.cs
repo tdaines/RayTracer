@@ -8,7 +8,7 @@ namespace RayTracer.Lib
         public float Ambient { get; set; }
         public float Diffuse { get; set; }
         public float Specular { get; set; }
-        public float Shininess { get; set; }
+        public int Shininess { get; set; }
         public float Reflective { get; set; }
         public float Transparency { get; set; }
         public float RefractiveIndex { get; set; }
@@ -18,7 +18,7 @@ namespace RayTracer.Lib
             float ambient = 0.1f,
             float diffuse = 0.9f,
             float specular = 0.9f,
-            float shininess = 200,
+            int shininess = 200,
             float reflective = 0,
             float transparency = 0,
             float refractiveIndex = 1)
@@ -31,7 +31,7 @@ namespace RayTracer.Lib
             float ambient = 0.1f,
             float diffuse = 0.9f,
             float specular = 0.9f,
-            float shininess = 200,
+            int shininess = 200,
             float reflective = 0,
             float transparency = 0,
             float refractiveIndex = 1)
@@ -44,7 +44,7 @@ namespace RayTracer.Lib
             float ambient = 0.1f,
             float diffuse = 0.9f,
             float specular = 0.9f,
-            float shininess = 200,
+            int shininess = 200,
             float reflective = 0,
             float transparency = 0,
             float refractiveIndex = 1)
@@ -63,13 +63,25 @@ namespace RayTracer.Lib
         {
             return MathF.Min(max, MathF.Max(min, value));
         }
+        
+        public static Material Mirror(
+            float ambient = 0,
+            float diffuse = 0,
+            float specular = 0.9f,
+            int shininess = 2000,
+            float reflective = 1,
+            float transparency = 0,
+            float refractiveIndex = 1)
+        {
+            return new Material(SolidPattern.Black, ambient, diffuse, specular, shininess, reflective, transparency, refractiveIndex);
+        }
 
         public static Material Glass(
-            float ambient = 0.1f,
-            float diffuse = 0.9f,
+            float ambient = 0,
+            float diffuse = 0,
             float specular = 0.9f,
-            float shininess = 200,
-            float reflective = 0,
+            int shininess = 200,
+            float reflective = 1,
             float transparency = 1,
             float refractiveIndex = 1.5f)
         {
