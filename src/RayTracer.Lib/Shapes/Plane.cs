@@ -1,6 +1,4 @@
-using System;
-
-namespace RayTracer.Lib
+namespace RayTracer.Lib.Shapes
 {
     public class Plane : Shape
     {

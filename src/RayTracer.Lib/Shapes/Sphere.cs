@@ -1,6 +1,6 @@
 using System;
 
-namespace RayTracer.Lib
+namespace RayTracer.Lib.Shapes
 {
     public class Sphere : Shape
     {

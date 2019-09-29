@@ -1,3 +1,5 @@
+using RayTracer.Lib.Shapes;
+
 namespace RayTracer.Lib.Patterns
 {
     public abstract class Pattern

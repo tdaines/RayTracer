@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RayTracer.Lib.Shapes;
 
 namespace RayTracer.Lib
 {
@@ -13,24 +14,6 @@ namespace RayTracer.Lib
         {
             Lights = new List<PointLight>();
             Shapes = new List<Shape>();
-        }
-
-        public static World DefaultWorld()
-        {
-            var light = new PointLight(new Point(-10, 10, -10), Color.White);
-
-            return DefaultWorld(light);
-        }
-        
-        public static World DefaultWorld(PointLight light)
-        {
-            var world = new World();
-            
-            world.Lights.Add(light);
-            world.Shapes.Add(new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f)));
-            world.Shapes.Add(new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)));
-
-            return world;
         }
 
         public void Add(PointLight light)

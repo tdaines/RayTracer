@@ -1,3 +1,4 @@
+using RayTracer.Lib.Shapes;
 using Xunit;
 
 namespace RayTracer.Lib.Test

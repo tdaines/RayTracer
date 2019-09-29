@@ -1,16 +1,31 @@
 using System;
 using RayTracer.Lib.Patterns;
+using RayTracer.Lib.Shapes;
 using RayTracer.Lib.Test.Patterns;
 using Xunit;
 
 namespace RayTracer.Lib.Test
 {
+    public class DefaultWorld : World
+    {
+        public DefaultWorld() : this(new PointLight(new Point(-10, 10, -10), Color.White))
+        {
+        }
+
+        public DefaultWorld(PointLight light)
+        {
+            Lights.Add(light);
+            Shapes.Add(new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f)));
+            Shapes.Add(new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)));
+        }
+    }
+    
     public class WorldTests
     {
         [Fact]
         public void DefaultWorld()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             
             Assert.Equal(new Point(-10, 10, -10),  world.Lights[0].Position);
             Assert.Equal(Color.White, world.Lights[0].Intensity);
@@ -27,7 +42,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void IntersectDefaultWorldWithRay()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
 
             var intersections = world.Intersect(ray);
@@ -42,7 +57,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ShadeHitIntersectionFromOutside()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
             var shape = world.Shapes[0];
             var intersection = new Intersection(4, shape);
@@ -54,7 +69,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ShadeHitIntersectionFromInside()
         {
-            var world = World.DefaultWorld(new PointLight(new Point(0, 0.25f, 0), Color.White));
+            var world = new DefaultWorld(new PointLight(new Point(0, 0.25f, 0), Color.White));
             var ray = new Ray(new Point(0, 0, 0), new Vector(0, 0, 1));
             var shape = world.Shapes[1];
             var intersection = new Intersection(0.5f, shape);
@@ -81,7 +96,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ColorAtRayMiss()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var ray = new Ray(new Point(0, 0, -5), new Vector(0, 1, 0));
             
             Assert.Equal(new Color(0, 0, 0), world.ColorAt(ray, 0));
@@ -90,7 +105,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ColorAtRayHit()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var ray = new Ray(new Point(0, 0, -5), new Vector(0, 0, 1));
             
             Assert.Equal(new Color(0.38066f, 0.47583f, 0.2855f), world.ColorAt(ray, 0));
@@ -99,7 +114,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ColorAtIntersectionBehindRay()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             world.Shapes[0] = new Sphere(new Material(new Color(0.8f, 1.0f, 0.6f), diffuse: 0.7f, specular: 0.2f, ambient: 1));
             var inner = world.Shapes[1] = new Sphere(Matrix4x4.Scaling(0.5f, 0.5f, 0.5f), new Material(ambient: 1));
             var ray = new Ray(new Point(0, 0, 0.75f), new Vector(0, 0, -1));
@@ -116,7 +131,7 @@ namespace RayTracer.Lib.Test
             var transform = ViewTransform.Create(from, to, up);
             var camera = new Camera(11, 11, MathF.PI / 2, transform);
 
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var canvas = world.Render(camera);
             
             Assert.Equal(new Color(0.38066f, 0.47583f, 0.2855f),  canvas[5, 5]);
@@ -125,7 +140,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void IsShadowed()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var point = new Point(0, 10, 0);
             
             Assert.False(world.IsShadowed(point, world.Lights[0]));
@@ -134,7 +149,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void IsShadowedObjectBetweenPointAndLight()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var point = new Point(10, -10, 10);
             
             Assert.True(world.IsShadowed(point, world.Lights[0]));
@@ -143,7 +158,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void IsShadowedLightBetweenPointAndObject()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var point = new Point(-20, 20, -20);
             
             Assert.False(world.IsShadowed(point, world.Lights[0]));
@@ -152,7 +167,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void IsShadowedPointBetweenLightAndObject()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var point = new Point(-2, 2, -2);
             
             Assert.False(world.IsShadowed(point, world.Lights[0]));
@@ -161,7 +176,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ReflectedColorNonReflectiveMaterial()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var ray = new Ray(Point.Zero, Vector.UnitZ);
             var shape = world.Shapes[1];
             shape.Material.Ambient = 1;
@@ -176,7 +191,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ReflectedColorReflectiveMaterial()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var plane = new Plane(
                 Matrix4x4.Translation(0, -1, 0),
                 new Material(reflective: 0.5f));
@@ -193,7 +208,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ShadeHitReflectiveMaterial()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var plane = new Plane(
                 Matrix4x4.Translation(0, -1, 0),
                 new Material(reflective: 0.5f));
@@ -234,7 +249,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void ReflectedColorMaxRecursiveDepth()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var plane = new Plane(
                 Matrix4x4.Translation(0, -1, 0),
                 new Material(reflective: 0.5f));
@@ -251,7 +266,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void RefractedColorOpaqueSurface()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var sphere = world.Shapes[0];
             var ray = new Ray(new Point(0, 0, -5), Vector.UnitZ);
             var intersections = new Intersections(new Intersection(4, sphere), new Intersection(6, sphere));
@@ -264,7 +279,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void RefractedColorMaxRecursiveDepth()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var sphere = world.Shapes[0];
             sphere.Material.Transparency = 1;
             sphere.Material.RefractiveIndex = 1.5f;
@@ -280,7 +295,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void RefractedColorTotalInternalReflection()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var sphere = world.Shapes[0];
             sphere.Material.Transparency = 1;
             sphere.Material.RefractiveIndex = 1.5f;
@@ -296,7 +311,7 @@ namespace RayTracer.Lib.Test
         [Fact]
         public void RefractedColor()
         {
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             var sphereA = world.Shapes[0];
             sphereA.Material.Ambient = 1;
             sphereA.Material.Pattern = new TestPattern();
@@ -327,7 +342,7 @@ namespace RayTracer.Lib.Test
                 Matrix4x4.Translation(0, -3.5f, -0.5f),
                 new Material(Color.Red, ambient: 0.5f));
             
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             world.Add(floor);
             world.Add(ball);
             
@@ -349,7 +364,7 @@ namespace RayTracer.Lib.Test
                 Matrix4x4.Translation(0, -3.5f, -0.5f),
                 new Material(Color.Red, ambient: 0.5f));
             
-            var world = World.DefaultWorld();
+            var world = new DefaultWorld();
             world.Add(floor);
             world.Add(ball);
             

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using RayTracer.Lib;
 using RayTracer.Lib.Patterns;
+using RayTracer.Lib.Shapes;
 using YamlDotNet.RepresentationModel;
 
 namespace RayTracer

@@ -1,4 +1,4 @@
-namespace RayTracer.Lib
+namespace RayTracer.Lib.Shapes
 {
     public abstract class Shape
     {

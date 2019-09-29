@@ -1,6 +1,7 @@
+using RayTracer.Lib.Shapes;
 using Xunit;
 
-namespace RayTracer.Lib.Test
+namespace RayTracer.Lib.Test.Shapes
 {
     public class PlaneTests
     {

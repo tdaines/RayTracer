@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using RayTracer.Lib;
 using RayTracer.Lib.Patterns;
+using RayTracer.Lib.Shapes;
 
 namespace RayTracer.Exercises.Scene
 {
@@ -119,7 +120,7 @@ namespace RayTracer.Exercises.Scene
             
             var floor = new Plane(floorMaterial);
 
-            var sphere = new Lib.Sphere(Matrix4x4.Translation(0, 1, 0), Material.Mirror());
+            var sphere = new Lib.Shapes.Sphere(Matrix4x4.Translation(0, 1, 0), Material.Mirror());
             
             var smallSphere = new Lib.Sphere(
                 Matrix4x4.Translation(2, 1, -1) * Matrix4x4.Scaling(0.5f, 0.5f, 0.5f),

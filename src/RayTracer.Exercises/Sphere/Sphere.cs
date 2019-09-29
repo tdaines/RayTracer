@@ -59,3 +59,14 @@ namespace RayTracer.Exercises.Sphere
         }
     }
 }
+
+namespace RayTracer.Lib
+{
+    public class Sphere
+    {
+        public Sphere(Material material)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
+}

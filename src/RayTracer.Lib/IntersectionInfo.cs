@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RayTracer.Lib.Shapes;
 
 namespace RayTracer.Lib
 {
