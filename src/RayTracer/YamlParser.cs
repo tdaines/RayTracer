@@ -11,19 +11,30 @@ namespace RayTracer
 {
     public class YamlParser
     {
-        private Dictionary<string, Material> materials;
-        
+        public Dictionary<string, Material> Materials { get; private set; }
+        public Dictionary<string, Matrix4x4> Transforms { get; private set; }
+        public Dictionary<string, Matrix4x4> Objects { get; private set; }
+
         public (World, Camera) LoadYamlFile(string file)
+        {
+            using var reader = new StreamReader(file);
+            string yaml = reader.ReadToEnd();
+            return LoadYaml(yaml);
+        }
+        
+        public (World, Camera) LoadYaml(string yaml)
         {
             var world = new World();
             Camera camera = null;
-            materials = new Dictionary<string, Material>();
+            Materials = new Dictionary<string, Material>();
+            Transforms = new Dictionary<string, Matrix4x4>();
+            Objects = new Dictionary<string, Matrix4x4>();
             
-            using var reader = new StreamReader(file);
-            var yaml = new YamlStream();
-            yaml.Load(reader);
+            using var reader = new StringReader(yaml);
+            var yamlStream = new YamlStream();
+            yamlStream.Load(reader);
             
-            var mapping = (YamlSequenceNode)yaml.Documents[0].RootNode;
+            var mapping = (YamlSequenceNode)yamlStream.Documents[0].RootNode;
 
             foreach (var node in mapping)
             {
@@ -48,35 +59,53 @@ namespace RayTracer
                                 world.Shapes.Add(ParseShape(node));
                                 break;
                             default:
-                                throw new Exception($"Add {type} not supported");
+                                throw new Exception($"Add {type} not supported (line {node.Start.Line})");
                         }
                         break;
                     case "DEFINE":
                         var name = type;
                         type = type.Substring(type.LastIndexOf('-') + 1);
-                        
+
                         switch (type)
                         {
                             case "MATERIAL":
-                                materials.Add(name, ParseMaterial(node.AllNodes.ToArray()[4]));
+//                                Materials.Add(name, ParseMaterialDefine(node.AllNodes.ToArray()[4]));
+                                Materials.Add(name, ParseMaterialDefine(node));
+                                break;
+                            case "TRANSFORM":
+                                Transforms.Add(name, ParseTransform(node.AllNodes.ToArray()[4]));
+                                break;
+                            case "OBJECT":
+                                Objects.Add(name, ParseTransform(node.AllNodes.ToArray()[4]));
                                 break;
                             default:
-                                throw new Exception($"Define {name} not supported");
+                                throw new Exception($"Define {name} not supported (line {node.Start.Line})");
                         }
                         break;
                     default:
-                        throw new Exception($"Command {command} not supported");
+                        throw new Exception($"Command {command} not supported (line {node.Start.Line})");
                 }
             }
             
             return (world, camera);
         }
 
+//        private (string name, string type) ParseDefine(string val)
+//        {
+//            val = val.ToUpperInvariant();
+//            var name = val;
+//            var type = val.Substring(val.LastIndexOf('-') + 1);
+//
+//            return (name, type);
+//        }
+
         private Shape ParseShape(YamlNode node)
         {
             string type = null;
             var transform = Matrix4x4.Identity();
             var material = new Material();
+            
+            string[] supportedShapes = { "SPHERE", "PLANE" };
             
             foreach (var child in (YamlMappingNode)node)
             {
@@ -86,15 +115,19 @@ namespace RayTracer
                 {
                     case "ADD":
                         type = ((YamlScalarNode) child.Value).Value.ToUpperInvariant();
+                        if (!supportedShapes.Contains(type))
+                        {
+                            throw new Exception($"Shape type {type} not supported (line {child.Key.Start.Line})");
+                        }
                         break;
                     case "TRANSFORM":
                         transform = ParseTransform(child.Value);
                         break;
                     case "MATERIAL":
-                        material = ParseMaterial(child.Value);
+                        material = ParseMaterialDefine(child.Value);
                         break;
                     default:
-                        throw new Exception($"Shape attribute {key} not supported");
+                        throw new Exception($"Shape attribute {key} not supported (line {child.Key.Start.Line})");
                 }
             }
 
@@ -105,7 +138,7 @@ namespace RayTracer
                 case "SPHERE":
                     return new Sphere(transform, material);
                 default:
-                    throw new Exception($"Shape type {type} not supported");
+                    throw new Exception($"Shape type {type} not supported (line {node.Start.Line})");
             }
         }
 
@@ -128,7 +161,7 @@ namespace RayTracer
                         break;
                     case "ADD": break;
                     default:
-                        throw new Exception($"Light attribute {key} not supported");
+                        throw new Exception($"Light attribute {key} not supported (line {child.Key.Start.Line})");
                 }
             }
             
@@ -171,7 +204,7 @@ namespace RayTracer
                         break;
                     case "ADD": break;
                     default:
-                        throw new Exception($"Camera attribute {key} not supported");
+                        throw new Exception($"Camera attribute {key} not supported (line {child.Key.Start.Line})");
                 }
             }
             
@@ -210,53 +243,102 @@ namespace RayTracer
         private Matrix4x4 ParseTransform(YamlNode node)
         {
             var transform = Matrix4x4.Identity();
-            var transforms = (YamlSequenceNode) node;
 
-            foreach (var transformNode in transforms)
+            foreach (var child in (YamlSequenceNode)node)
             {
-                var type = ((YamlScalarNode) transformNode[0]).Value.ToUpperInvariant();
-            
+                if (child.NodeType == YamlNodeType.Scalar)
+                {
+                    string key = ((YamlScalarNode) child).Value.ToUpperInvariant();
+                    transform *= Transforms[key];
+                    continue;
+                }
+                
+                var type = ((YamlScalarNode) child[0]).Value.ToUpperInvariant();
+                
                 switch (type)
                 {
                     case "TRANSLATE":
-                        transform *= Matrix4x4.Translation(ParseFloat(transformNode[1]), ParseFloat(transformNode[2]), ParseFloat(transformNode[3]));
+                        transform = Matrix4x4.Translation(ParseFloat(child[1]), ParseFloat(child[2]), ParseFloat(child[3])) * transform;
                         break;
                     case "SCALE":
-                        transform *= Matrix4x4.Scaling(ParseFloat(transformNode[1]), ParseFloat(transformNode[2]), ParseFloat(transformNode[3]));
+                        transform = Matrix4x4.Scaling(ParseFloat(child[1]), ParseFloat(child[2]), ParseFloat(child[3])) * transform;
                         break;
                     case "ROTATE-X":
-                        transform *= Matrix4x4.RotationX(ParseFloat(transformNode[1]));
+                        transform = Matrix4x4.RotationX(ParseFloat(child[1])) * transform;
                         break;
                     case "ROTATE-Y":
-                        transform *= Matrix4x4.RotationY(ParseFloat(transformNode[1]));
+                        transform = Matrix4x4.RotationY(ParseFloat(child[1])) * transform;
                         break;
                     case "ROTATE-Z":
-                        transform *= Matrix4x4.RotationZ(ParseFloat(transformNode[1]));
+                        transform = Matrix4x4.RotationZ(ParseFloat(child[1])) * transform;
                         break;
                     default:
-                        throw new Exception($"Transform {type} not supported");
+                        throw new Exception($"Transform {type} not supported (line {child.Start.Line})");
                 }
             }
 
             return transform;
         }
 
-        private Material ParseMaterial(YamlNode node)
+        private Material Copy(Material from)
+        {
+            return new Material
+            {
+                Ambient = from.Ambient,
+                Diffuse = from.Diffuse,
+                Pattern = from.Pattern,
+                Reflective = from.Reflective,
+                RefractiveIndex = from.RefractiveIndex,
+                Shininess = from.Shininess,
+                Specular = from.Specular,
+                Transparency = from.Transparency
+            };
+        }
+        
+        private Material ParseMaterialDefine(YamlNode node)
         {
             if (node.NodeType == YamlNodeType.Scalar)
             {
                 string key = ((YamlScalarNode) node).Value.ToUpperInvariant();
-                return materials[key];
+                return Materials[key];
+            }
+
+            if (node.NodeType == YamlNodeType.Mapping)
+            {
+                Material materialToExtend = null;
+                
+                foreach (var child in (YamlMappingNode) node)
+                {
+                    var keyNode = (YamlScalarNode) child.Key;
+                    var key = keyNode.Value.ToUpperInvariant();
+                    switch (key)
+                    {
+                        case "DEFINE":
+                            break;
+                        case "EXTEND":
+                            var valueNode = (YamlScalarNode) child.Value;
+                            var value = valueNode.Value.ToUpperInvariant();
+                            materialToExtend = Materials[value];
+                            break;
+                        case "VALUE":
+                            return ParseMaterial(child.Value, materialToExtend);
+                    }
+                }
             }
             
-            var ambient = 0.1f;
-            var diffuse = 0.9f;
-            var specular = 0.9f;
-            var shininess = 200;
-            var reflective = 0f;
-            var transparency = 0f;
-            var refractiveIndex = 1f;
-            Pattern pattern = null;
+            return ParseMaterial(node);
+        }
+
+        private Material ParseMaterial(YamlNode node, Material material = null)
+        {
+            if (material == null)
+            {
+                material = new Material();
+            }
+            else
+            {
+                material = Copy(material);
+            }
 
             foreach (var child in (YamlMappingNode)node)
             {
@@ -264,51 +346,47 @@ namespace RayTracer
                 switch (key)
                 {
                     case "AMBIENT":
-                        ambient = ParseFloat(child.Value);
+                        material.Ambient = ParseFloat(child.Value);
                         break;
                     case "DIFFUSE":
-                        diffuse = ParseFloat(child.Value);
+                        material.Diffuse = ParseFloat(child.Value);
                         break;
                     case "SPECULAR":
-                        specular = ParseFloat(child.Value);
+                        material.Specular = ParseFloat(child.Value);
                         break;
                     case "SHININESS":
-                        shininess = ParseInt(child.Value);
+                        material.Shininess = ParseInt(child.Value);
                         break;
                     case "REFLECTIVE":
-                        reflective = ParseFloat(child.Value);
+                        material.Reflective = ParseFloat(child.Value);
                         break;
                     case "TRANSPARENCY":
-                        transparency = ParseFloat(child.Value);
+                        material.Transparency = ParseFloat(child.Value);
                         break;
                     case "REFRACTIVE-INDEX":
-                        refractiveIndex = ParseFloat(child.Value);
+                        material.RefractiveIndex = ParseFloat(child.Value);
                         break;
                     case "COLOR":
-                        pattern = new SolidPattern(ParseColor(child.Value));
+                        material.Pattern = new SolidPattern(ParseColor(child.Value));
                         break;
                     case "PATTERN":
-                        pattern = ParsePattern(child.Value);
+                        material.Pattern = ParsePattern(child.Value);
                         break;
                     default:
-                        throw new Exception($"Material attribute {key} not supported");
+                        throw new Exception($"Material attribute {key} not supported (line {child.Key.Start.Line})");
                 }
             }
 
-            if (pattern == null)
-            {
-                return new Material(ambient, diffuse, specular,
-                    shininess, reflective, transparency, refractiveIndex);
-            }
-
-            return new Material(pattern, ambient, diffuse, specular,
-                shininess, reflective, transparency, refractiveIndex);
+            return material;
         }
 
         private Pattern ParsePattern(YamlNode node)
         {
             string type = null;
-            Color[] colors = null;
+            var colors = new Color[] { Color.White, Color.Black };
+            var transform = Matrix4x4.Identity();
+            
+            string[] supportedTypes = { "CHECKERS", "CHECKER", "STRIPES" };
             
             foreach (var child in (YamlMappingNode)node)
             {
@@ -317,12 +395,19 @@ namespace RayTracer
                 {
                     case "TYPE":
                         type = ((YamlScalarNode) child.Value).Value.ToUpperInvariant();
+                        if (!supportedTypes.Contains(type))
+                        {
+                            throw new Exception($"Pattern type {type} not supported (line {child.Key.Start.Line})");
+                        }
                         break;
                     case "COLORS":
                         colors = ParseColors(child.Value);
                         break;
+                    case "TRANSFORM":
+                        transform = ParseTransform(child.Value);
+                        break;
                     default:
-                        throw new Exception($"Pattern attribute {key} not supported");
+                        throw new Exception($"Pattern attribute {key} not supported (line {child.Key.Start.Line})");
                 }
             }
 
@@ -330,9 +415,11 @@ namespace RayTracer
             {
                 case "CHECKERS":
                 case "CHECKER":
-                    return new CheckeredPattern(new SolidPattern(colors[0]), new SolidPattern(colors[1]));
+                    return new CheckeredPattern(transform, new SolidPattern(colors[0]), new SolidPattern(colors[1]));
+                case "STRIPES":
+                    return new StripePattern(transform, new SolidPattern(colors[0]), new SolidPattern(colors[1]));
                 default:
-                    throw new Exception($"Pattern type {type} not supported");
+                    throw new Exception($"Pattern type {type} not supported (line {node.Start.Line})");
             }
         }
 

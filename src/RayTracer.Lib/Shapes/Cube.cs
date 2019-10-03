@@ -24,7 +24,17 @@ namespace RayTracer.Lib.Shapes
 
         protected override Vector ObjectNormal(Point objectPoint)
         {
-            throw new System.NotImplementedException();
+            if (MathF.Abs(objectPoint.X).ApproximatelyEquals(1))
+            {
+                return new Vector(objectPoint.X, 0, 0);
+            }
+            
+            if (MathF.Abs(objectPoint.Y).ApproximatelyEquals(1))
+            {
+                return new Vector(0, objectPoint.Y, 0);
+            }
+            
+            return new Vector(0, 0, objectPoint.Z);
         }
 
         protected override Intersections IntersectTransformedRay(Ray ray)
@@ -35,6 +45,11 @@ namespace RayTracer.Lib.Shapes
 
             var min = MathF.Max(MathF.Max(xMin, yMin), zMin);
             var max = MathF.Min(MathF.Min(xMax, yMax), zMax);
+
+            if (min > max)
+            {
+                return new Intersections();
+            }
             
             return new Intersections(new Intersection(min, this), new Intersection(max, this));
         }
@@ -44,8 +59,8 @@ namespace RayTracer.Lib.Shapes
             var minNumerator = -1 - origin;
             var maxNumerator = 1 - origin;
 
-            var min = 0f;
-            var max = 0f;
+            float min;
+            float max;
             
             if (MathF.Abs(direction) >= EPSILON)
             {
