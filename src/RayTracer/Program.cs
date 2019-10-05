@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using CommandLine;
+using RayTracer.Lib;
 
 namespace RayTracer
 {
@@ -14,6 +15,11 @@ namespace RayTracer
         {
             var (world, camera) = new YamlParser().LoadYamlFile(options.InFile);
 
+            var width = options.Width ?? camera.Width;
+            var height = options.Height ?? camera.Height;
+            
+            camera = new Camera(width, height, camera.FieldOfView, camera.Transform);
+            
             var canvas = world.Render(camera, options.RecursiveDepth);
             
             File.WriteAllLines(options.OutFile, canvas.GetPortablePixmap());

@@ -40,5 +40,19 @@ namespace RayTracer
             Required = false,
             HelpText = "Number of bounces a reflected ray will take")]
         public int RecursiveDepth { get; set; }
+        
+        [Option(
+            'w',
+            "width",
+            Required = false,
+            HelpText = "Image width in pixels")]
+        public int? Width { get; set; }
+        
+        [Option(
+            'h',
+            "height",
+            Required = false,
+            HelpText = "Image height in pixels")]
+        public int? Height { get; set; }
     }
 }
