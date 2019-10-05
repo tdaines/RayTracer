@@ -304,5 +304,168 @@ namespace RayTracer.Test
             Assert.Equal(0, material.Transparency);
             Assert.Equal(1, material.RefractiveIndex);
         }
+        
+        [Fact]
+        public void DefineTransform()
+        {
+            const string yaml = @"
+- define: standard-transform
+  value:
+    - [ translate, 1, -1, 1 ]
+    - [ scale, 0.5, 0.5, 0.5 ]";
+            
+            var parser = new YamlParser();
+            parser.LoadYaml(yaml);
+
+            var transform = parser.Transforms["STANDARD-TRANSFORM"];
+            var expected = Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)
+                         * Matrix4x4.Translation(1, -1, 1);
+            
+            Assert.Equal(expected, transform);
+        }
+
+        [Fact]
+        public void DefineObjectWithTransformReference()
+        {
+            const string yaml = @"
+- define: standard-transform
+  value:
+    - [ translate, 1, -1, 1 ]
+    - [ scale, 0.5, 0.5, 0.5 ]
+
+- define: large-object
+  value:
+    - standard-transform
+    - [ scale, 3.5, 3.5, 3.5 ]";
+            
+            var parser = new YamlParser();
+            parser.LoadYaml(yaml);
+            
+            var standard = parser.Transforms["STANDARD-TRANSFORM"];
+            var expected = Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)
+                         * Matrix4x4.Translation(1, -1, 1);
+            
+            Assert.Equal(expected, standard);
+
+            var largeObject = parser.Objects["LARGE-OBJECT"];
+            expected = Matrix4x4.Scaling(3.5f, 3.5f, 3.5f)
+                     * standard;
+            
+            Assert.Equal(expected, largeObject);
+        }
+
+        [Fact]
+        public void AddSphereWithObjectReference()
+        {
+            const string yaml = @"
+- define: standard-transform
+  value:
+    - [ translate, 1, -1, 1 ]
+    - [ scale, 0.5, 0.5, 0.5 ]
+
+- define: large-object
+  value:
+    - standard-transform
+    - [ scale, 3.5, 3.5, 3.5 ]
+
+- add: sphere
+  material:
+    color: [ 0.373, 0.404, 0.550 ]
+    diffuse: 0.2
+    ambient: 0.0
+    specular: 1.0
+    shininess: 200
+    reflective: 0.7
+    transparency: 0.7
+    refractive-index: 1.5
+  transform:
+    - large-object";
+            
+            var parser = new YamlParser();
+            var (world, _) = parser.LoadYaml(yaml);
+            
+            var standard = parser.Transforms["STANDARD-TRANSFORM"];
+            var expected = Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)
+                         * Matrix4x4.Translation(1, -1, 1);
+            
+            Assert.Equal(expected, standard);
+
+            var largeObject = parser.Objects["LARGE-OBJECT"];
+            expected = Matrix4x4.Scaling(3.5f, 3.5f, 3.5f)
+                     * standard;
+            
+            Assert.Equal(expected, largeObject);
+            
+            var sphere = (Sphere) world.Shapes[0];
+
+            Assert.Equal(largeObject, sphere.Transform);
+            Assert.Equal(new Color(0.373f, 0.404f, 0.550f), ((SolidPattern) sphere.Material.Pattern).Color);
+            Assert.Equal(0, sphere.Material.Ambient);
+            Assert.Equal(0.2f, sphere.Material.Diffuse);
+            Assert.Equal(1, sphere.Material.Specular);
+            Assert.Equal(200, sphere.Material.Shininess);
+            Assert.Equal(0.7f, sphere.Material.Reflective);
+            Assert.Equal(0.7f, sphere.Material.Transparency);
+            Assert.Equal(1.5f, sphere.Material.RefractiveIndex);
+        }
+
+        [Fact]
+        public void AddCubeWithObjectReference()
+        {
+            const string yaml = @"
+- define: white-material
+  value:
+    color: [ 1, 1, 1 ]
+    diffuse: 0.7
+    ambient: 0.1
+    specular: 0.0
+    reflective: 0.1
+
+- define: standard-transform
+  value:
+    - [ translate, 1, -1, 1 ]
+    - [ scale, 0.5, 0.5, 0.5 ]
+
+- define: medium-object
+  value:
+    - standard-transform
+    - [ scale, 3, 3, 3 ]
+
+- add: cube
+  material: white-material
+  transform:
+    - medium-object
+    - [ translate, 4, 0, 0 ]";
+            
+            var parser = new YamlParser();
+            var (world, _) = parser.LoadYaml(yaml);
+
+            var whiteMaterial = parser.Materials["WHITE-MATERIAL"];
+            
+            Assert.Equal(Color.White, ((SolidPattern) whiteMaterial.Pattern).Color);
+            Assert.Equal(0.1f, whiteMaterial.Ambient);
+            Assert.Equal(0.7f, whiteMaterial.Diffuse);
+            Assert.Equal(0, whiteMaterial.Specular);
+            Assert.Equal(0.1f, whiteMaterial.Reflective);
+            
+            var standardTransform = parser.Transforms["STANDARD-TRANSFORM"];
+            var expected = Matrix4x4.Scaling(0.5f, 0.5f, 0.5f)
+                         * Matrix4x4.Translation(1, -1, 1);
+            
+            Assert.Equal(expected, standardTransform);
+
+            var mediumObject = parser.Objects["MEDIUM-OBJECT"];
+            expected = Matrix4x4.Scaling(3, 3, 3)
+                     * standardTransform;
+            
+            Assert.Equal(expected, mediumObject);
+            
+            var cube = (Cube) world.Shapes[0];
+            expected = Matrix4x4.Translation(4, 0, 0)
+                     * mediumObject;
+
+            Assert.Same(whiteMaterial, cube.Material);
+            Assert.Equal(expected, cube.Transform);
+        }
     }
 }
