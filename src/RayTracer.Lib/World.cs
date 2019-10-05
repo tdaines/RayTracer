@@ -33,7 +33,7 @@ namespace RayTracer.Lib
             for (int i = 0; i < Shapes.Count; i++)
             {
                 var intersections = Shapes[i].Intersect(ray);
-                allIntersections.AddRange(intersections.Where(xs => xs.Time >= 0));
+                allIntersections.AddRange(intersections);
             }
             
             return new Intersections(allIntersections);
@@ -92,7 +92,7 @@ namespace RayTracer.Lib
         public Canvas Render(Camera camera, int recursiveDepth = 5)
         {
             var canvas = new Canvas(camera.Width, camera.Height);
-
+            
             for (int y = 0; y < camera.Height; y++)
             {
                 for (int x = 0; x < camera.Width; x++)

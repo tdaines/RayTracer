@@ -2,6 +2,7 @@ namespace RayTracer.Lib.Shapes
 {
     public abstract class Shape
     {
+        public string Name { get; set; }
         public Matrix4x4 Transform { get; }
         public Matrix4x4 InverseTransform { get; }
         private Matrix4x4 TransposedInverseTransform { get; }

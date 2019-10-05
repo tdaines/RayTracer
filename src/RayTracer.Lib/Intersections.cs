@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RayTracer.Lib
 {
@@ -15,10 +14,10 @@ namespace RayTracer.Lib
             Array.Sort(this.intersections);
         }
 
-        public Intersections(IEnumerable<Intersection> intersections)
+        public Intersections(List<Intersection> intersections)
         {
+            intersections.Sort();
             this.intersections = intersections.ToArray();
-            Array.Sort(this.intersections);
         }
 
         public Intersection this[int index] => intersections[index];
