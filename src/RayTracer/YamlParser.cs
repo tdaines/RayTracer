@@ -56,6 +56,7 @@ namespace RayTracer
                                 break;
                             case "PLANE":
                             case "SPHERE":
+                            case "CUBE":
                                 world.Shapes.Add(ParseShape(node));
                                 break;
                             default:
@@ -69,7 +70,6 @@ namespace RayTracer
                         switch (type)
                         {
                             case "MATERIAL":
-//                                Materials.Add(name, ParseMaterialDefine(node.AllNodes.ToArray()[4]));
                                 Materials.Add(name, ParseMaterialDefine(node));
                                 break;
                             case "TRANSFORM":
@@ -90,22 +90,13 @@ namespace RayTracer
             return (world, camera);
         }
 
-//        private (string name, string type) ParseDefine(string val)
-//        {
-//            val = val.ToUpperInvariant();
-//            var name = val;
-//            var type = val.Substring(val.LastIndexOf('-') + 1);
-//
-//            return (name, type);
-//        }
-
         private Shape ParseShape(YamlNode node)
         {
             string type = null;
             var transform = Matrix4x4.Identity();
             var material = new Material();
             
-            string[] supportedShapes = { "SPHERE", "PLANE" };
+            string[] supportedShapes = { "SPHERE", "PLANE", "CUBE" };
             
             foreach (var child in (YamlMappingNode)node)
             {
@@ -137,6 +128,8 @@ namespace RayTracer
                     return new Plane(transform, material);
                 case "SPHERE":
                     return new Sphere(transform, material);
+                case "CUBE":
+                    return new Cube(transform, material);
                 default:
                     throw new Exception($"Shape type {type} not supported (line {node.Start.Line})");
             }
@@ -246,14 +239,29 @@ namespace RayTracer
 
             foreach (var child in (YamlSequenceNode)node)
             {
+                string type;
+                
                 if (child.NodeType == YamlNodeType.Scalar)
                 {
                     string key = ((YamlScalarNode) child).Value.ToUpperInvariant();
-                    transform *= Transforms[key];
+                    type = key.Substring(key.LastIndexOf('-') + 1);
+
+                    switch (type)
+                    {
+                        case "OBJECT":
+                            transform = Objects[key] * transform;
+                            break;
+                        case "TRANSFORM":
+                            transform = Transforms[key] * transform;
+                            break;
+                        default:
+                            throw new Exception($"Defined {key} not supported (line {child.Start.Line})");
+                    }
+
                     continue;
                 }
                 
-                var type = ((YamlScalarNode) child[0]).Value.ToUpperInvariant();
+                type = ((YamlScalarNode) child[0]).Value.ToUpperInvariant();
                 
                 switch (type)
                 {
@@ -383,7 +391,7 @@ namespace RayTracer
         private Pattern ParsePattern(YamlNode node)
         {
             string type = null;
-            var colors = new Color[] { Color.White, Color.Black };
+            var colors = new [] { Color.White, Color.Black };
             var transform = Matrix4x4.Identity();
             
             string[] supportedTypes = { "CHECKERS", "CHECKER", "STRIPES" };
