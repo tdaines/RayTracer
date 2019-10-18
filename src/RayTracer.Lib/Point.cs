@@ -73,6 +73,6 @@ namespace RayTracer.Lib
             return $"Point({X}, {Y}, {Z})";
         }
         
-        public static Point Zero => new Point(0, 0, 0);
+        public static Point Zero = new Point(0, 0, 0);
     }
 }

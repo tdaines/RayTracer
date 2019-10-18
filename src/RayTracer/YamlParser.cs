@@ -95,6 +95,7 @@ namespace RayTracer
             string type = null;
             var transform = Matrix4x4.Identity();
             var material = new Material();
+            bool castsShadow = true;
             
             string[] supportedShapes = { "SPHERE", "PLANE", "CUBE" };
             
@@ -117,6 +118,9 @@ namespace RayTracer
                     case "MATERIAL":
                         material = ParseMaterialDefine(child.Value);
                         break;
+                    case "SHADOW":
+                        castsShadow = bool.Parse(((YamlScalarNode) child.Value).Value);
+                        break;
                     default:
                         throw new Exception($"Shape attribute {key} not supported (line {child.Key.Start.Line})");
                 }
@@ -125,11 +129,11 @@ namespace RayTracer
             switch (type)
             {
                 case "PLANE":
-                    return new Plane(transform, material);
+                    return new Plane(transform, material) { CastsShadow = castsShadow };
                 case "SPHERE":
-                    return new Sphere(transform, material);
+                    return new Sphere(transform, material) { CastsShadow = castsShadow };
                 case "CUBE":
-                    return new Cube(transform, material);
+                    return new Cube(transform, material) { CastsShadow = castsShadow };
                 default:
                     throw new Exception($"Shape type {type} not supported (line {node.Start.Line})");
             }

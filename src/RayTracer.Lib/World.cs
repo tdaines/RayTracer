@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using RayTracer.Lib.Shapes;
 
 namespace RayTracer.Lib
@@ -26,14 +25,18 @@ namespace RayTracer.Lib
             Shapes.Add(shape);
         }
 
-        public Intersections Intersect(Ray ray)
+        public Intersections Intersect(Ray ray, bool shadowIntersections = false)
         {
             List<Intersection> allIntersections = new List<Intersection>();
 
             for (int i = 0; i < Shapes.Count; i++)
             {
-                var intersections = Shapes[i].Intersect(ray);
-                allIntersections.AddRange(intersections);
+                var shape = Shapes[i];
+                if (!shadowIntersections || shape.CastsShadow)
+                {
+                    var intersections = shape.Intersect(ray);
+                    allIntersections.AddRange(intersections);
+                }
             }
             
             return new Intersections(allIntersections);
@@ -89,7 +92,7 @@ namespace RayTracer.Lib
             return ShadeHit(intersectionInfo, remaining);
         }
 
-        public Canvas Render(Camera camera, int recursiveDepth = 5)
+        public Canvas Render(Camera camera, int recursiveDepth = 5, int raysPerPixel = 1)
         {
             var canvas = new Canvas(camera.Width, camera.Height);
             
@@ -97,13 +100,45 @@ namespace RayTracer.Lib
             {
                 for (int x = 0; x < camera.Width; x++)
                 {
-                    var ray = camera.RayForPixel(x, y);
-                    var color = ColorAt(ray, recursiveDepth);
-                    canvas[x, y] = color;
+                    canvas[x, y] = ColorAt(camera, x, y, recursiveDepth, raysPerPixel);
                 }
             }
 
             return canvas;
+        }
+
+        private Color ColorAt(Camera camera, int x, int y, int recursiveDepth, int raysPerPixel)
+        {
+            if (raysPerPixel == 1)
+            {
+                var ray = camera.RayForPixel(x, y);
+                return ColorAt(ray, recursiveDepth);
+            }
+            
+            int rows = (int)MathF.Sqrt(raysPerPixel);
+            int cols = rows;
+            var offset = 1 / (MathF.Sqrt(raysPerPixel) * 2);
+            var step = 2 * offset;
+            var color = Color.Black;
+                        
+            for (int row = 0; row < rows; row++)
+            {
+                var yOffset = offset + row * step;
+                    
+                for (int col = 0; col < cols; col++)
+                {
+                    var xOffset = offset + col * step;
+                        
+                    var ray = camera.RayForPixel(x, y, xOffset, yOffset);
+                    color += ColorAt(ray, recursiveDepth);
+                }
+            }
+                
+            var red = color.R / raysPerPixel;
+            var green = color.G / raysPerPixel;
+            var blue = color.B / raysPerPixel;
+                
+            return new Color(red, green, blue);
         }
 
         public bool IsShadowed(Point point, PointLight light)
@@ -112,7 +147,7 @@ namespace RayTracer.Lib
             var directionToLight = Vector.Normalize(vectorToLight);
             
             var rayToLight = new Ray(point, directionToLight);
-            var intersections = Intersect(rayToLight);
+            var intersections = Intersect(rayToLight, true);
 
             // Get closest intersection
             var hit = intersections.Hit();

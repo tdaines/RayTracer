@@ -7,6 +7,7 @@ namespace RayTracer.Lib.Shapes
         public Matrix4x4 InverseTransform { get; }
         private Matrix4x4 TransposedInverseTransform { get; }
         public Material Material { get; }
+        public bool CastsShadow { get; set; } = true;
 
         protected Shape() : this(Matrix4x4.Identity(), new Material())
         {

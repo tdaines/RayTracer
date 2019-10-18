@@ -34,8 +34,8 @@ namespace RayTracer
         }
         
         [Option(
-            'r',
-            "recurse",
+            'b',
+            "bounces",
             Default = 5,
             Required = false,
             HelpText = "Number of bounces a reflected ray will take")]
@@ -54,5 +54,13 @@ namespace RayTracer
             Required = false,
             HelpText = "Image height in pixels")]
         public int? Height { get; set; }
+        
+        [Option(
+            'r',
+            "rays-per-pixel",
+            Default = 1,
+            Required = false,
+            HelpText = "Number of rays cast per pixel (anti-aliasing)")]
+        public int RaysPerPixel { get; set; }
     }
 }

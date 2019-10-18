@@ -47,11 +47,11 @@ namespace RayTracer.Lib
             return (halfWidth * 2) / Width;
         }
 
-        public Ray RayForPixel(int x, int y)
+        public Ray RayForPixel(int x, int y, float xOffset = 0.5f, float yOffset = 0.5f)
         {
-            // offset from edge of the canvas to the pixel's center
-            var xOffset = (x + 0.5f) * PixelSize;
-            var yOffset = (y + 0.5f) * PixelSize;
+            // offset from edge of the canvas to point within pixel
+            xOffset = (x + xOffset) * PixelSize;
+            yOffset = (y + yOffset) * PixelSize;
 
             // the untransformed coordinates of the pixel in world space.
             // (remember that the camera looks toward -z, so +x is the the left)
