@@ -70,6 +70,11 @@ namespace RayTracer.Lib
         public static Vector Normalize(Vector vector)
         {
             var length = vector.Length();
+            if (length.ApproximatelyEquals(0))
+            {
+                return new Vector(0, 0, 0);
+            }
+            
             var x = vector.X / length;
             var y = vector.Y / length;
             var z = vector.Z / length;
