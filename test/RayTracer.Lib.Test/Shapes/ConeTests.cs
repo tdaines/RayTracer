@@ -6,7 +6,7 @@ using Xunit;
 
 namespace RayTracer.Lib.Test.Shapes
 {
-    public class CondeIntersectHitData : IEnumerable<object[]>
+    public class ConeIntersectHitData : IEnumerable<object[]>
     {
         public IEnumerator<object[]> GetEnumerator()
         {
@@ -45,7 +45,7 @@ namespace RayTracer.Lib.Test.Shapes
     public class ConeTests
     {
         [Theory]
-        [ClassData(typeof(CondeIntersectHitData))]
+        [ClassData(typeof(ConeIntersectHitData))]
         public void Intersect(Point origin, Vector direction, float t0, float t1)
         {
             var cone = new Cone();
@@ -54,8 +54,8 @@ namespace RayTracer.Lib.Test.Shapes
             
             var intersections = cone.Intersect(ray);
             Assert.Equal(2, intersections.Count);
-            Assert.Equal(t0, intersections[0].Time);
-            Assert.Equal(t1, intersections[1].Time);
+            Assert.True(t0.ApproximatelyEquals(intersections[0].Time));
+            Assert.True(t1.ApproximatelyEquals(intersections[1].Time));
         }
 
         [Fact]
